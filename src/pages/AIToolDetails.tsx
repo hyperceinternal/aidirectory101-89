@@ -209,12 +209,6 @@ const AIToolDetails = () => {
               Overview
             </TabsTrigger>
             <TabsTrigger 
-              value="reviews" 
-              className="data-[state=active]:border-b-2 data-[state=active]:border-ai-purple rounded-none bg-transparent"
-            >
-              Reviews
-            </TabsTrigger>
-            <TabsTrigger 
               value="integrations" 
               className="data-[state=active]:border-b-2 data-[state=active]:border-ai-purple rounded-none bg-transparent"
             >
@@ -287,13 +281,6 @@ const AIToolDetails = () => {
                   </ul>
                 </div>
               </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="reviews">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-bold text-ai-dark mb-4">User Reviews</h2>
-              <p className="text-gray-600">No reviews available yet. Be the first to review this product!</p>
             </div>
           </TabsContent>
           
