@@ -61,14 +61,11 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
           </div>
 
           {/* Add z-index to ensure buttons are above the wave */}
-          <div className="flex flex-wrap justify-center gap-4 relative z-10">
+          <div className="flex justify-center relative z-10">
             <Button size="lg" asChild>
               <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                 Try {product.name} <ArrowRight className="h-4 w-4" />
               </a>
-            </Button>
-            <Button variant="outline" size="lg">
-              Compare with alternatives
             </Button>
           </div>
         </div>
