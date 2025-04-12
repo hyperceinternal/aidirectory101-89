@@ -6,24 +6,20 @@ import {
   Star, 
   Users, 
   Calendar, 
-  Globe, 
-  Share2, 
-  Heart, 
-  Check 
+  Check, 
+  Globe 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import ProductHeader from '@/components/ProductHeader';
 import ProductSidebar from '@/components/ProductSidebar';
-import ProductFeaturesList from '@/components/ProductFeaturesList';
-import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { aiProducts } from '@/data/products';
 import type { AIProduct } from '@/types/product';
 import ProductInfoCard from '@/components/ProductInfoCard';
+import Footer from '@/components/Footer';
 
 // Define mock data for the sections that aren't in our AIProduct type
 interface UseCase {
@@ -149,23 +145,17 @@ const AIToolDetails = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <ProductHeader 
-        name={product.name} 
-        logo={product.image} 
-        websiteUrl={product.url}
-        onShare={handleShare}
-        onSave={toggleFavorite}
-      />
+      <ProductHeader name={product.name} logo={product.image} />
       
       {/* Hero Section */}
-      <div className="bg-white py-12">
-        <div className="container mx-auto px-4">
+      <div className="relative bg-gradient-to-b from-primary/10 to-white">
+        <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-block p-4 bg-white rounded-xl shadow-sm mb-6">
+            <div className="inline-block p-3 bg-white rounded-2xl shadow-sm mb-6">
               <img
                 src={product.image}
                 alt={`${product.name} logo`}
-                className="w-24 h-24 object-contain"
+                className="w-20 h-20 rounded-xl object-contain"
               />
             </div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
@@ -202,123 +192,63 @@ const AIToolDetails = () => {
               </div>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex justify-center">
               <Button size="lg" asChild>
                 <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   Try {product.name} <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="outline" size="lg">
-                Compare with alternatives
-              </Button>
             </div>
           </div>
         </div>
+        
+        {/* Wave Divider */}
+        <div className="absolute bottom-0 left-0 right-0 z-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 100" className="w-full h-auto">
+            <path
+              fill="#ffffff"
+              fillOpacity="1"
+              d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,48C840,43,960,53,1080,58.7C1200,64,1320,64,1380,64L1440,64L1440,100L1380,100C1320,100,1200,100,1080,100C960,100,840,100,720,100C600,100,480,100,360,100C240,100,120,100,60,100L0,100Z"
+            ></path>
+          </svg>
+        </div>
       </div>
       
-      {/* Main Content with Tabs */}
+      {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="mb-8 bg-transparent justify-start overflow-x-auto">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="features">Features</TabsTrigger>
-                <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
-                <TabsTrigger value="pricing">Pricing</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                <TabsTrigger value="alternatives">Alternatives</TabsTrigger>
-              </TabsList>
+            <Card>
+              <CardHeader>
+                <CardTitle>About {product.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed">
+                  {product.description}
+                </p>
+                {useCases.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-medium mb-4">Key Use Cases</h3>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {useCases.map((useCase, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="mr-2 mt-1 bg-primary/10 rounded-full p-1">
+                            <Check className="h-4 w-4 text-primary" />
+                          </div>
+                          <span>{useCase.title}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <TabsContent value="overview" className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>About {product.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700 leading-relaxed">
-                      {product.description}
-                    </p>
-                    {useCases.length > 0 && (
-                      <div className="mt-8">
-                        <h3 className="text-lg font-medium mb-4">Key Use Cases</h3>
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {useCases.map((useCase, index) => (
-                            <li key={index} className="flex items-start">
-                              <div className="mr-2 mt-1 bg-primary/10 rounded-full p-1">
-                                <Check className="h-4 w-4 text-primary" />
-                              </div>
-                              <span>{useCase.title}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <ProductInfoCard 
-                  rating={product.rating} 
-                  reviewCount={product.reviewCount || 0} 
-                  foundedYear={foundedYear} 
-                />
-              </TabsContent>
-
-              <TabsContent value="features">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Features</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Features content will go here.</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="screenshots">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Screenshots</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Screenshots will go here.</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="pricing">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pricing</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Pricing information: {product.pricingModel}</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="reviews">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Reviews</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Reviews will go here.</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="alternatives">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Alternatives</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Alternative products will go here.</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+            <ProductInfoCard 
+              rating={product.rating} 
+              reviewCount={product.reviewCount || 0} 
+              foundedYear={foundedYear} 
+            />
           </div>
           
           <div className="lg:col-span-1">
