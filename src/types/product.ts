@@ -3,6 +3,7 @@ export interface AIProduct {
   id: string;
   name: string;
   description: string;
+  shortDescription?: string;
   category: string;
   url: string;
   image: string;

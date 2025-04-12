@@ -30,7 +30,11 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
             />
           </div>
           <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
-          <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">{product.description}</p>
+          
+          {/* Display short description below the image */}
+          <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
+            {product.shortDescription || product.description.substring(0, 120) + '...'}
+          </p>
 
           <div className="flex flex-wrap justify-center gap-3 mb-8">
             {product.tags.map((tag, index) => (
@@ -57,7 +61,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
 
             <div className="flex items-center gap-1">
               <Users className="h-5 w-5 text-gray-500" />
-              <span>{product.userCount ? `${product.userCount.toLocaleString()}+ users` : '10,000+ users'}</span>
+              <span>10,000+ users</span>
             </div>
 
             <div className="flex items-center gap-1">
