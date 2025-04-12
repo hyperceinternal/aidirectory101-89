@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AIProduct } from '@/data/products';
+import { AIProduct } from '@/types/product';
 import ProductCard from './ProductCard';
 
 interface ProductGridProps {

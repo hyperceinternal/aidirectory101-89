@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ExternalLink } from 'lucide-react';
-import { AIProduct } from '@/data/products';
+import { AIProduct } from '@/types/product';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 
