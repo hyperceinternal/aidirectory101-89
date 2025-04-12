@@ -1,15 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Share2, Heart, CheckCircle } from 'lucide-react';
+import { ExternalLink, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import ProductHeader from '@/components/ProductHeader';
 import ProductFeaturesList from '@/components/ProductFeaturesList';
 import ProductSidebar from '@/components/ProductSidebar';
-import ProductInfoCard from '@/components/ProductInfoCard';
 import ProductHero from '@/components/ProductHero';
 import ProductCTA from '@/components/ProductCTA';
 import Footer from '@/components/Footer';
@@ -23,14 +21,6 @@ interface UseCase {
   description: string;
 }
 
-interface CustomerReview {
-  user: string;
-  date: string;
-  rating: number;
-  title: string;
-  comment: string;
-}
-
 const AIToolDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -42,7 +32,6 @@ const AIToolDetails = () => {
   // Mock data for sections not in our AIProduct type
   const [useCases, setUseCases] = useState<UseCase[]>([]);
   const [integrations, setIntegrations] = useState<string[]>([]);
-  const [customerReviews, setCustomerReviews] = useState<CustomerReview[]>([]);
   const [alternatives, setAlternatives] = useState<string[]>([]);
 
   useEffect(() => {
@@ -67,23 +56,6 @@ const AIToolDetails = () => {
           
           setIntegrations(["Slack", "Microsoft Teams", "Google Workspace", "Zapier", "GitHub"]);
           
-          setCustomerReviews([
-            { 
-              user: "John D.", 
-              date: "March 15, 2025", 
-              rating: 5, 
-              title: "Game changer for our team", 
-              comment: "We've been using this tool for 3 months and it has completely transformed our workflow." 
-            },
-            { 
-              user: "Sarah M.", 
-              date: "February 28, 2025", 
-              rating: 4, 
-              title: "Great product with a few quirks", 
-              comment: "Overall very impressed, though there's a slight learning curve." 
-            }
-          ]);
-          
           setAlternatives(["2", "3", "6"]); // IDs of alternative products
           
           // Check if favorite
@@ -96,10 +68,6 @@ const AIToolDetails = () => {
     
     fetchProductDetails();
   }, [id]);
-
-  const goBack = () => {
-    navigate(-1);
-  };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href)
@@ -177,12 +145,61 @@ const AIToolDetails = () => {
         name={product.name} 
         logo={product.image} 
         websiteUrl={product.url}
+        onShare={handleShare}
       />
       
-      <main className="flex-grow container mx-auto px-4 pt-32 pb-16">
+      <main className="flex-grow container mx-auto px-4 pt-8 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-10">
-            <ProductHero product={product} />
+            {/* Hero section with logo and description */}
+            <div className="mb-12 text-center">
+              <div className="inline-block p-4 bg-white rounded-xl shadow-sm mb-6">
+                <img
+                  src={product.image}
+                  alt={`${product.name} logo`}
+                  className="w-24 h-24 object-contain"
+                />
+              </div>
+              <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
+              <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">{product.description}</p>
+              
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                {product.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="px-3 py-1 text-sm">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              
+              <div className="flex justify-center items-center gap-6 mb-8">
+                <div className="flex items-center">
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-5 h-5 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}>
+                        <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="ml-2 font-medium">
+                    {product.rating.toFixed(1)}/5 ({product.reviewCount || 0} reviews)
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <span>10,000+ users</span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <span>Founded 2021</span>
+                </div>
+              </div>
+              
+              <Button size="lg" asChild>
+                <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  Try {product.name} <ArrowRight className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
             
             <section>
               <h2 className="text-2xl font-bold mb-4">About {product.name}</h2>
@@ -220,48 +237,6 @@ const AIToolDetails = () => {
                 ))}
               </div>
             </section>
-            
-            {customerReviews.length > 0 && (
-              <section>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">User Reviews</h2>
-                  <Button variant="outline" size="sm">
-                    Write a Review
-                  </Button>
-                </div>
-                <div className="space-y-6">
-                  {customerReviews.slice(0, 3).map((review, index) => (
-                    <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center text-gray-600 font-semibold">
-                            {review.user.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="font-medium">{review.user}</p>
-                            <p className="text-sm text-gray-500">{review.date}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center text-yellow-400">
-                          {Array(5).fill(0).map((_, i) => (
-                            <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-200'}`}>
-                              <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                            </svg>
-                          ))}
-                        </div>
-                      </div>
-                      <h3 className="font-semibold mb-2">{review.title}</h3>
-                      <p className="text-gray-600">{review.comment}</p>
-                    </div>
-                  ))}
-                </div>
-                {customerReviews.length > 3 && (
-                  <div className="text-center mt-6">
-                    <Button variant="outline">View All Reviews</Button>
-                  </div>
-                )}
-              </section>
-            )}
             
             <section>
               <h2 className="text-2xl font-bold mb-6">Alternative AI Tools</h2>
