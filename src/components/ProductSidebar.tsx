@@ -6,14 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 interface ProductSidebarProps {
-  websiteUrl: string;
-  categories: string[];
-  onShare: () => void;
+  websiteUrl?: string;
+  categories?: string[];
+  onShare?: () => void;
 }
 
-const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories, onShare }) => {
+const ProductSidebar: React.FC<ProductSidebarProps> = ({ 
+  websiteUrl = "#", 
+  categories = [], 
+  onShare = () => {} 
+}) => {
   return (
-    <div className="sticky top-24 h-fit z-0"> {/* Added z-0 to ensure it stays below the header */}
+    <div className="sticky top-24 h-fit z-0">
       <div className="space-y-6">
         <Card>
           <CardHeader>

@@ -6,14 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 interface ProductHeaderProps {
-  name: string;
-  logo: string;
-  websiteUrl: string;
+  name?: string;
+  logo?: string;
+  websiteUrl?: string;
 }
 
-const ProductHeader: React.FC<ProductHeaderProps> = ({ name, logo, websiteUrl }) => {
+const ProductHeader: React.FC<ProductHeaderProps> = ({ 
+  name = "AI Tool", 
+  logo = "/placeholder.svg", 
+  websiteUrl = "#" 
+}) => {
   return (
-    <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm"> {/* Increased z-index to 20 */}
+    <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link

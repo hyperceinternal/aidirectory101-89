@@ -17,6 +17,20 @@ import { useToast } from '@/hooks/use-toast';
 import { aiProducts } from '@/data/products';
 import type { AIProduct } from '@/types/product';
 
+// Define mock data for the sections that aren't in our AIProduct type
+interface UseCase {
+  title: string;
+  description: string;
+}
+
+interface CustomerReview {
+  user: string;
+  date: string;
+  rating: number;
+  title: string;
+  comment: string;
+}
+
 const AIToolDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -24,6 +38,12 @@ const AIToolDetails = () => {
   const [product, setProduct] = useState<AIProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
+  
+  // Mock data for sections not in our AIProduct type
+  const [useCases, setUseCases] = useState<UseCase[]>([]);
+  const [integrations, setIntegrations] = useState<string[]>([]);
+  const [customerReviews, setCustomerReviews] = useState<CustomerReview[]>([]);
+  const [alternatives, setAlternatives] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchProductDetails = () => {
@@ -36,6 +56,36 @@ const AIToolDetails = () => {
       setTimeout(() => {
         if (foundProduct) {
           setProduct(foundProduct);
+          
+          // Set mock data
+          setUseCases([
+            { title: "Content Creation", description: "Generate high-quality content quickly" },
+            { title: "Customer Support", description: "Automate responses to common questions" },
+            { title: "Data Analysis", description: "Extract insights from large datasets" },
+            { title: "Research Assistant", description: "Help with research and summarization" }
+          ]);
+          
+          setIntegrations(["Slack", "Microsoft Teams", "Google Workspace", "Zapier", "GitHub"]);
+          
+          setCustomerReviews([
+            { 
+              user: "John D.", 
+              date: "March 15, 2025", 
+              rating: 5, 
+              title: "Game changer for our team", 
+              comment: "We've been using this tool for 3 months and it has completely transformed our workflow." 
+            },
+            { 
+              user: "Sarah M.", 
+              date: "February 28, 2025", 
+              rating: 4, 
+              title: "Great product with a few quirks", 
+              comment: "Overall very impressed, though there's a slight learning curve." 
+            }
+          ]);
+          
+          setAlternatives(["2", "3", "6"]); // IDs of alternative products
+          
           // Check if favorite
           const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
           setIsFavorite(favorites.includes(foundProduct.id));
@@ -123,31 +173,35 @@ const AIToolDetails = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ProductHeader />
+      <ProductHeader 
+        name={product.name} 
+        logo={product.image} 
+        websiteUrl={product.url}
+      />
       
       <main className="flex-grow container mx-auto px-4 pt-32 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-10">
-            <ProductHero />
+            <ProductHero product={product} />
             
             <section>
               <h2 className="text-2xl font-bold mb-4">About {product.name}</h2>
               <div className="prose max-w-none">
-                <p className="text-gray-700">{product.longDescription}</p>
+                <p className="text-gray-700">{product.description}</p>
               </div>
             </section>
             
-            {product.features && product.features.length > 0 && (
+            {useCases.length > 0 && (
               <section>
                 <h2 className="text-2xl font-bold mb-6">Key Features</h2>
-                <ProductFeaturesList />
+                <ProductFeaturesList useCases={useCases} />
               </section>
             )}
             
             <section>
               <h2 className="text-2xl font-bold mb-6">Use Cases</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {product.useCases.map((useCase, index) => (
+                {useCases.map((useCase, index) => (
                   <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold text-lg mb-2">{useCase.title}</h3>
                     <p className="text-gray-600">{useCase.description}</p>
@@ -159,7 +213,7 @@ const AIToolDetails = () => {
             <section>
               <h2 className="text-2xl font-bold mb-4">Integrations</h2>
               <div className="flex flex-wrap gap-2">
-                {product.integrations.map((integration, index) => (
+                {integrations.map((integration, index) => (
                   <Badge key={index} variant="outline" className="px-3 py-1">
                     {integration}
                   </Badge>
@@ -167,7 +221,7 @@ const AIToolDetails = () => {
               </div>
             </section>
             
-            {product.customerReviews && product.customerReviews.length > 0 && (
+            {customerReviews.length > 0 && (
               <section>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">User Reviews</h2>
@@ -176,7 +230,7 @@ const AIToolDetails = () => {
                   </Button>
                 </div>
                 <div className="space-y-6">
-                  {product.customerReviews.slice(0, 3).map((review, index) => (
+                  {customerReviews.slice(0, 3).map((review, index) => (
                     <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3">
@@ -201,7 +255,7 @@ const AIToolDetails = () => {
                     </div>
                   ))}
                 </div>
-                {product.customerReviews.length > 3 && (
+                {customerReviews.length > 3 && (
                   <div className="text-center mt-6">
                     <Button variant="outline">View All Reviews</Button>
                   </div>
@@ -212,7 +266,7 @@ const AIToolDetails = () => {
             <section>
               <h2 className="text-2xl font-bold mb-6">Alternative AI Tools</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {product.alternatives.map((altId, index) => {
+                {alternatives.map((altId, index) => {
                   const alt = aiProducts.find(p => p.id === altId);
                   if (!alt) return null;
                   
@@ -225,7 +279,7 @@ const AIToolDetails = () => {
                       <div className="w-12 h-12 relative rounded overflow-hidden flex-shrink-0">
                         <AspectRatio ratio={1}>
                           <img 
-                            src={alt.icon || '/placeholder.svg'} 
+                            src={alt.image || '/placeholder.svg'} 
                             alt={alt.name} 
                             className="object-cover" 
                           />
@@ -243,7 +297,11 @@ const AIToolDetails = () => {
           </div>
           
           <div className="lg:col-span-1 relative">
-            <ProductSidebar />
+            <ProductSidebar 
+              websiteUrl={product.url}
+              categories={product.tags}
+              onShare={handleShare}
+            />
           </div>
         </div>
       </main>

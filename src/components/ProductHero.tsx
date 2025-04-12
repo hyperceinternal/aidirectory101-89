@@ -7,13 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 interface ProductHeroProps {
-  product: AIProduct;
+  product?: AIProduct;
 }
 
 const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
+  if (!product) {
+    return <div className="h-64 bg-gray-100 rounded-lg animate-pulse"></div>;
+  }
+  
   return (
     <div className="relative bg-gradient-to-b from-primary/10 to-white">
-      {/* Add padding-top to prevent overlap with the header */}
       <div className="container mx-auto px-4 py-12 pt-28">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block p-3 bg-white rounded-2xl shadow-sm mb-6">
@@ -60,7 +63,6 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
             </div>
           </div>
 
-          {/* Add z-index to ensure buttons are above the wave */}
           <div className="flex justify-center relative z-10">
             <Button size="lg" asChild>
               <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
@@ -71,7 +73,6 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
         </div>
       </div>
 
-      {/* Wave Divider - with lower z-index */}
       <div className="absolute bottom-0 left-0 right-0 z-0">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 100" className="w-full h-auto">
           <path

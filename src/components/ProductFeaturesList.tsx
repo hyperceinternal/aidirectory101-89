@@ -7,10 +7,10 @@ interface UseCase {
 }
 
 interface ProductFeaturesListProps {
-  useCases: UseCase[];
+  useCases?: UseCase[];
 }
 
-const ProductFeaturesList: React.FC<ProductFeaturesListProps> = ({ useCases }) => {
+const ProductFeaturesList: React.FC<ProductFeaturesListProps> = ({ useCases = [] }) => {
   return (
     <div className="mt-8">
       <h3 className="text-lg font-medium mb-4">Key Use Cases</h3>
