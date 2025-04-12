@@ -1,7 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { AIProduct, aiProducts } from '@/data/products';
+import { AIProduct } from '@/types/product';
+import { aiProducts } from '@/data/products';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Zap, Globe, Shield, BarChart, Check, Download } from 'lucide-react';
@@ -16,7 +16,6 @@ import ProductFeaturesList from '@/components/ProductFeaturesList';
 import ProductSidebar from '@/components/ProductSidebar';
 import ProductCTA from '@/components/ProductCTA';
 
-// Helper function to render the appropriate icon
 const renderIcon = (iconName: string) => {
   const icons = {
     Zap: <Zap className="h-5 w-5 text-primary" />,
@@ -102,7 +101,6 @@ const AIToolDetails = () => {
     );
   }
 
-  // Generate use cases from tags for demo
   const useCases = [
     { title: "Content creation for blogs and social media" },
     { title: "Academic research and paper writing" },
@@ -111,7 +109,6 @@ const AIToolDetails = () => {
     { title: "Business documentation and reports" },
   ];
 
-  // Generate features from tags for demo
   const features = product.tags.map(tag => ({
     name: `${tag} functionality`,
     description: `Advanced capabilities for ${tag.toLowerCase()} tasks.`,
@@ -147,9 +144,6 @@ const AIToolDetails = () => {
                 <TabsTrigger value="pricing" className="px-6">
                   Pricing
                 </TabsTrigger>
-                <TabsTrigger value="reviews" className="px-6">
-                  Reviews
-                </TabsTrigger>
                 <TabsTrigger value="alternatives" className="px-6">
                   Alternatives
                 </TabsTrigger>
@@ -175,7 +169,7 @@ const AIToolDetails = () => {
 
                 <ProductInfoCards 
                   rating={product.rating} 
-                  reviewCount={328} 
+                  reviewCount={product.reviewCount || 328} 
                   foundedYear={2021} 
                 />
               </TabsContent>
@@ -247,18 +241,6 @@ const AIToolDetails = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">Pricing information coming soon!</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="reviews" className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">User Reviews</CardTitle>
-                    <CardDescription>See what others are saying about {product.name}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">Reviews coming soon!</p>
                   </CardContent>
                 </Card>
               </TabsContent>

@@ -10,5 +10,5 @@ export interface AIProduct {
   rating: number;
   featured?: boolean;
   pricingModel: string;
-  reviews?: number; // Added for review count
+  reviewCount?: number; // Changed from reviews to reviewCount
 }

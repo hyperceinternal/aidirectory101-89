@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ArrowRight, Users, Calendar } from 'lucide-react';
-import { AIProduct } from '@/data/products';
+import { AIProduct } from '@/types/product';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -44,7 +44,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
                 ))}
               </div>
               <span className="ml-2 font-medium">
-                {product.rating.toFixed(1)}/5 ({product.reviews} reviews)
+                {product.rating.toFixed(1)}/5 ({product.reviewCount || 0} reviews)
               </span>
             </div>
 
