@@ -13,7 +13,7 @@ interface ProductSidebarProps {
 
 const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories, onShare }) => {
   return (
-    <div className="sticky top-24 h-fit">
+    <div className="sticky top-24 h-fit z-0"> {/* Added z-0 to ensure it stays below the header */}
       <div className="space-y-6">
         <Card>
           <CardHeader>
