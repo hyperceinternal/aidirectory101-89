@@ -48,7 +48,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
         <nav className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-gray-600 hover:text-ai-purple transition-colors">Home</Link>
           <Link to="/categories" className="text-gray-600 hover:text-ai-purple transition-colors">Categories</Link>
-          <Link to="/search" className="text-gray-600 hover:text-ai-purple transition-colors">Search</Link>
           <Link to="/about" className="text-gray-600 hover:text-ai-purple transition-colors flex items-center gap-1">
             <Info size={16} />
             About Us
