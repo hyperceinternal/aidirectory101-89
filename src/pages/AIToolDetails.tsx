@@ -9,14 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
 const AIToolDetails = () => {
   const { id } = useParams();
@@ -92,30 +84,6 @@ const AIToolDetails = () => {
       <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
       
       <main className="flex-grow pt-20 px-4 container mx-auto">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb className="mb-6">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/" className="text-ai-purple hover:text-ai-dark transition-colors flex items-center">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Home
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/">Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{product.name}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        
         {/* Product Header Section */}
         <div className="flex flex-col md:flex-row items-start gap-6 mb-8">
           <div className="w-24 h-24 bg-white rounded-lg shadow-sm p-2 flex items-center justify-center">
