@@ -36,8 +36,8 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
 
         <nav className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-gray-600 hover:text-ai-purple transition-colors">Home</Link>
+          <Link to="/categories" className="text-gray-600 hover:text-ai-purple transition-colors">Categories</Link>
           <Link to="/search" className="text-gray-600 hover:text-ai-purple transition-colors">Search</Link>
-          <a href="#" className="text-gray-600 hover:text-ai-purple transition-colors">Categories</a>
           <a href="#" className="text-gray-600 hover:text-ai-purple transition-colors">New Products</a>
         </nav>
       </div>
