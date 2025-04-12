@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowRight, Users, Calendar, Star } from 'lucide-react';
 import { AIProduct } from '@/types/product';
@@ -61,7 +60,7 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
 
             <div className="flex items-center gap-1">
               <Users className="h-5 w-5 text-gray-500" />
-              <span>10,000+ users</span>
+              <span>{product.userCount ? `${product.userCount.toLocaleString()}+ users` : 'N/A users'}</span>
             </div>
 
             <div className="flex items-center gap-1">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -42,8 +41,6 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li className="text-gray-300">Email: info@aidirectory.com</li>
               <li className="text-gray-300">Twitter: @AIdirectory</li>
-              <li><Link to="/submit" className="text-gray-300 hover:text-white transition-colors">Submit a Product</Link></li>
-              <li><Link to="/advertise" className="text-gray-300 hover:text-white transition-colors">Advertise with Us</Link></li>
             </ul>
           </div>
         </div>
