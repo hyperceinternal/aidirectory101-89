@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const AIToolDetails = () => {
   const { id } = useParams();
@@ -84,17 +92,29 @@ const AIToolDetails = () => {
       <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
       
       <main className="flex-grow pt-20 px-4 container mx-auto">
-        {/* Breadcrumb & Back Button */}
-        <div className="mb-6 flex items-center">
-          <Link to="/" className="inline-flex items-center text-ai-purple hover:text-ai-dark transition-colors">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-          <span className="mx-2 text-gray-400">/</span>
-          <span className="text-gray-500">Home</span>
-          <span className="mx-2 text-gray-400">/</span>
-          <span className="text-gray-700">{product.name}</span>
-        </div>
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/" className="text-ai-purple hover:text-ai-dark transition-colors flex items-center">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{product.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         
         {/* Product Header Section */}
         <div className="flex flex-col md:flex-row items-start gap-6 mb-8">
