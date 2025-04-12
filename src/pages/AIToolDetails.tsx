@@ -6,8 +6,7 @@ import {
   Star, 
   Users, 
   Calendar, 
-  Check, 
-  Globe 
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +14,6 @@ import ProductHeader from '@/components/ProductHeader';
 import ProductSidebar from '@/components/ProductSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { aiProducts } from '@/data/products';
 import type { AIProduct } from '@/types/product';
 import ProductInfoCard from '@/components/ProductInfoCard';
@@ -145,10 +143,10 @@ const AIToolDetails = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <ProductHeader name={product.name} logo={product.image} />
+      <ProductHeader />
       
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-b from-primary/10 to-white">
+      <div className="relative bg-gradient-to-b from-primary/10 to-white pt-16">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-block p-3 bg-white rounded-2xl shadow-sm mb-6">
@@ -244,11 +242,14 @@ const AIToolDetails = () => {
               </CardContent>
             </Card>
 
-            <ProductInfoCard 
-              rating={product.rating} 
-              reviewCount={product.reviewCount || 0} 
-              foundedYear={foundedYear} 
-            />
+            {/* Added more spacing between About section and InfoCards */}
+            <div className="mt-12">
+              <ProductInfoCard 
+                rating={product.rating} 
+                reviewCount={product.reviewCount || 0} 
+                foundedYear={foundedYear} 
+              />
+            </div>
           </div>
           
           <div className="lg:col-span-1">
