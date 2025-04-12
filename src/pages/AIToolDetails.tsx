@@ -1,305 +1,274 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { AIProduct } from '@/types/product';
-import { aiProducts } from '@/data/products';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Zap, Globe, Shield, BarChart, Check, Download } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, ExternalLink, Share2, Heart, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import ProductHero from '@/components/ProductHero';
-import ProductInfoCards from '@/components/ProductInfoCard';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import ProductHeader from '@/components/ProductHeader';
 import ProductFeaturesList from '@/components/ProductFeaturesList';
 import ProductSidebar from '@/components/ProductSidebar';
+import ProductInfoCard from '@/components/ProductInfoCard';
+import ProductHero from '@/components/ProductHero';
 import ProductCTA from '@/components/ProductCTA';
-import { useToast } from "@/hooks/use-toast";
-
-const renderIcon = (iconName: string) => {
-  const icons = {
-    Zap: <Zap className="h-5 w-5 text-primary" />,
-    Globe: <Globe className="h-5 w-5 text-primary" />,
-    Shield: <Shield className="h-5 w-5 text-primary" />,
-    BarChart: <BarChart className="h-5 w-5 text-primary" />,
-  };
-
-  return icons[iconName as keyof typeof icons] || <Zap className="h-5 w-5 text-primary" />;
-};
+import Footer from '@/components/Footer';
+import { useToast } from '@/hooks/use-toast';
+import { aiProducts } from '@/data/products';
+import type { Product } from '@/types/product';
 
 const AIToolDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<AIProduct | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<AIProduct[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    
-    const foundProduct = aiProducts.find(p => p.id === id);
-    
-    if (foundProduct) {
-      setProduct(foundProduct);
+    const fetchProductDetails = () => {
+      setIsLoading(true);
       
-      const related = aiProducts
-        .filter(p => p.id !== id && 
-          (p.category === foundProduct.category || 
-           p.tags.some(tag => foundProduct.tags.includes(tag)))
-        )
-        .slice(0, 3);
+      // Find product by ID
+      const foundProduct = aiProducts.find(p => p.id === id);
       
-      setRelatedProducts(related);
-    }
+      // Simulate network delay
+      setTimeout(() => {
+        if (foundProduct) {
+          setProduct(foundProduct);
+          // Check if favorite
+          const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+          setIsFavorite(favorites.includes(foundProduct.id));
+        }
+        setIsLoading(false);
+      }, 800);
+    };
     
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    fetchProductDetails();
   }, [id]);
 
-  if (loading) {
+  const goBack = () => {
+    navigate(-1);
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => {
+        toast({
+          title: "Link copied",
+          description: "URL has been copied to clipboard.",
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to copy",
+          description: "Please try again or copy the URL manually.",
+          variant: "destructive",
+        });
+      });
+  };
+
+  const toggleFavorite = () => {
+    if (!product) return;
+    
+    // Get existing favorites
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
+    if (isFavorite) {
+      // Remove from favorites
+      const newFavorites = favorites.filter((favId: string) => favId !== product.id);
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      setIsFavorite(false);
+      toast({
+        title: "Removed from favorites",
+        description: `${product.name} has been removed from your favorites.`,
+      });
+    } else {
+      // Add to favorites
+      favorites.push(product.id);
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      setIsFavorite(true);
+      toast({
+        title: "Added to favorites",
+        description: `${product.name} has been added to your favorites.`,
+      });
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
-        <div className="animate-pulse h-80 bg-primary/10 mt-16 pt-12"></div>
-        <main className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Skeleton className="h-12 w-96 mb-8" />
-              <Skeleton className="h-[600px] w-full" />
-            </div>
-            <div>
-              <Skeleton className="h-80 w-full mb-6" />
-              <Skeleton className="h-60 w-full mb-6" />
-              <Skeleton className="h-60 w-full" />
-            </div>
-          </div>
-        </main>
-        <Footer />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse space-y-4">
+          <div className="h-12 bg-gray-200 rounded w-2/3 mx-auto"></div>
+          <div className="h-32 bg-gray-200 rounded w-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+        </div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
-        <main className="flex-grow pt-24 px-4 container mx-auto">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h1>
-            <p className="text-gray-600 mb-8">The AI tool you're looking for doesn't exist or has been removed.</p>
-            <Link to="/">
-              <Button>
-                Back to Homepage
-              </Button>
-            </Link>
-          </div>
-        </main>
-        <Footer />
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
+        <p className="text-gray-600 mb-8">The AI tool you're looking for doesn't exist or has been removed.</p>
+        <Button asChild>
+          <Link to="/">Return to Homepage</Link>
+        </Button>
       </div>
     );
   }
 
-  const useCases = [
-    { title: "Content creation for blogs and social media" },
-    { title: "Academic research and paper writing" },
-    { title: "Email drafting and communication" },
-    { title: "Creative writing and storytelling" },
-    { title: "Business documentation and reports" },
-  ];
-
-  const features = product.tags.map(tag => ({
-    name: `${tag} functionality`,
-    description: `Advanced capabilities for ${tag.toLowerCase()} tasks.`,
-    icon: ["Zap", "Globe", "Shield", "BarChart"][Math.floor(Math.random() * 4)]
-  }));
-
-  const handleShareTool = () => {
-    const shareUrl = window.location.href;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      toast({
-        title: "Link copied to clipboard",
-        description: "You can now share this tool with others."
-      });
-    }).catch(err => {
-      toast({
-        title: "Failed to copy",
-        description: "Could not copy the link to clipboard.",
-        variant: "destructive"
-      });
-    });
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
+    <div className="min-h-screen flex flex-col">
+      <ProductHeader 
+        name={product.name} 
+        logo={product.logo} 
+        onBack={goBack}
+        onShare={handleShare}
+        isFavorite={isFavorite}
+        onToggleFavorite={toggleFavorite}
+      />
       
-      <ProductHero product={product} />
-      
-      <main className="container mx-auto px-4 py-12 relative z-10">
+      <main className="flex-grow container mx-auto px-4 pt-32 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="mb-8 w-full justify-start overflow-x-auto">
-                <TabsTrigger value="overview" className="px-6">
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger value="features" className="px-6">
-                  Features
-                </TabsTrigger>
-                <TabsTrigger value="screenshots" className="px-6">
-                  Screenshots
-                </TabsTrigger>
-                <TabsTrigger value="pricing" className="px-6">
-                  Pricing
-                </TabsTrigger>
-                <TabsTrigger value="alternatives" className="px-6">
-                  Alternatives
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="overview" className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">About {product.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700 leading-relaxed">
-                      {product.name} is a cutting-edge artificial intelligence tool designed to enhance productivity and creativity. 
-                      It leverages the latest advancements in natural language processing to provide assistance with 
-                      {product.tags.map(tag => ` ${tag.toLowerCase()}`).join(',')}. 
-                      Whether you're a professional writer, marketer, student, or just someone looking to streamline your workflow, 
-                      {product.name} offers the features you need.
-                    </p>
-
-                    <ProductFeaturesList useCases={useCases} />
-                  </CardContent>
-                </Card>
-
-                <ProductInfoCards 
-                  rating={product.rating} 
-                  reviewCount={product.reviewCount || 328} 
-                  foundedYear={2021} 
-                />
-              </TabsContent>
-
-              <TabsContent value="features" className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">Key Features</CardTitle>
-                    <CardDescription>Discover what makes {product.name} stand out from the competition</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 gap-8">
-                      {features.map((feature, index) => (
-                        <div key={index} className="flex gap-4">
-                          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                            {renderIcon(feature.icon)}
+          <div className="lg:col-span-2 space-y-10">
+            <ProductHero
+              name={product.name}
+              description={product.description}
+              image={product.screenshot}
+              categories={product.categories}
+              pricing={product.pricing}
+              rating={product.rating}
+            />
+            
+            <section>
+              <h2 className="text-2xl font-bold mb-4">About {product.name}</h2>
+              <div className="prose max-w-none">
+                <p className="text-gray-700">{product.longDescription}</p>
+              </div>
+            </section>
+            
+            {product.features && product.features.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold mb-6">Key Features</h2>
+                <ProductFeaturesList features={product.features} />
+              </section>
+            )}
+            
+            <section>
+              <h2 className="text-2xl font-bold mb-6">Use Cases</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {product.useCases.map((useCase, index) => (
+                  <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                    <h3 className="font-semibold text-lg mb-2">{useCase.title}</h3>
+                    <p className="text-gray-600">{useCase.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+            
+            <section>
+              <h2 className="text-2xl font-bold mb-4">Integrations</h2>
+              <div className="flex flex-wrap gap-2">
+                {product.integrations.map((integration, index) => (
+                  <Badge key={index} variant="outline" className="px-3 py-1">
+                    {integration}
+                  </Badge>
+                ))}
+              </div>
+            </section>
+            
+            {product.customerReviews && product.customerReviews.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">User Reviews</h2>
+                  <Button variant="outline" size="sm">
+                    Write a Review
+                  </Button>
+                </div>
+                <div className="space-y-6">
+                  {product.customerReviews.slice(0, 3).map((review, index) => (
+                    <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-gray-100 w-10 h-10 rounded-full flex items-center justify-center text-gray-600 font-semibold">
+                            {review.user.charAt(0)}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg mb-2">{feature.name}</h3>
-                            <p className="text-gray-600">{feature.description}</p>
+                            <p className="font-medium">{review.user}</p>
+                            <p className="text-sm text-gray-500">{review.date}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gradient-to-r from-primary/5 to-transparent border-primary/20">
-                  <CardContent className="p-8">
-                    <div className="flex flex-col md:flex-row items-center gap-6">
-                      <div className="md:w-1/4 flex justify-center">
-                        <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
-                          <Download className="h-10 w-10 text-primary" />
+                        <div className="flex items-center text-yellow-400">
+                          {Array(5).fill(0).map((_, i) => (
+                            <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-200'}`}>
+                              <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+                            </svg>
+                          ))}
                         </div>
                       </div>
-                      <div className="md:w-3/4 text-center md:text-left">
-                        <h3 className="text-xl font-semibold mb-2">Ready to experience {product.name}?</h3>
-                        <p className="text-gray-600 mb-4">
-                          Join thousands of satisfied users and transform your workflow today.
-                        </p>
-                        <Button asChild>
-                          <a href={product.url} target="_blank" rel="noopener noreferrer">
-                            Get Started for Free
-                          </a>
-                        </Button>
+                      <h3 className="font-semibold mb-2">{review.title}</h3>
+                      <p className="text-gray-600">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+                {product.customerReviews.length > 3 && (
+                  <div className="text-center mt-6">
+                    <Button variant="outline">View All Reviews</Button>
+                  </div>
+                )}
+              </section>
+            )}
+            
+            <section>
+              <h2 className="text-2xl font-bold mb-6">Alternative AI Tools</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {product.alternatives.map((altId, index) => {
+                  const alt = aiProducts.find(p => p.id === altId);
+                  if (!alt) return null;
+                  
+                  return (
+                    <Link 
+                      key={index} 
+                      to={`/tool/${alt.id}`}
+                      className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:bg-gray-50"
+                    >
+                      <div className="w-12 h-12 relative rounded overflow-hidden flex-shrink-0">
+                        <AspectRatio ratio={1}>
+                          <img 
+                            src={alt.logo || '/placeholder.svg'} 
+                            alt={alt.name} 
+                            className="object-cover" 
+                          />
+                        </AspectRatio>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="screenshots" className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">Screenshots & Interface</CardTitle>
-                    <CardDescription>Take a visual tour of {product.name}'s interface and features</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">Screenshots coming soon!</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="pricing" className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">Pricing Plans</CardTitle>
-                    <CardDescription>{product.name} offers flexible pricing options to suit your needs</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600">Pricing information coming soon!</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="alternatives" className="space-y-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">Similar Tools</CardTitle>
-                    <CardDescription>Compare {product.name} with alternatives</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      {relatedProducts.map((alt) => (
-                        <Link key={alt.id} to={`/tool/${alt.id}`}>
-                          <div className="flex items-center gap-4 p-6 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                            <img
-                              src={alt.image}
-                              alt={`${alt.name} logo`}
-                              className="w-12 h-12 rounded-md object-contain"
-                            />
-                            <div className="flex-grow">
-                              <h3 className="font-medium text-lg">{alt.name}</h3>
-                              <p className="text-sm text-gray-600">Alternative to {product.name}</p>
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                      <div className="flex-grow">
+                        <h3 className="font-semibold">{alt.name}</h3>
+                        <p className="text-sm text-gray-600 line-clamp-1">{alt.shortDescription}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
           </div>
-
-          <div>
+          
+          <div className="lg:col-span-1 relative">
             <ProductSidebar 
-              websiteUrl={product.url} 
-              categories={[product.category]} 
-              onShare={handleShareTool}
+              websiteUrl={product.websiteUrl}
+              pricingType={product.pricing}
+              pricingDetails={product.pricingDetails}
+              platforms={product.platforms}
+              lastUpdated={product.lastUpdated}
             />
           </div>
         </div>
       </main>
       
-      <ProductCTA 
-        productName={product.name} 
-        websiteUrl={product.url} 
-      />
-      
+      <ProductCTA />
       <Footer />
     </div>
   );

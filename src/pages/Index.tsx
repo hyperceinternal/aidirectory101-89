@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import CategoryFilter from '@/components/CategoryFilter';
 import ProductGrid from '@/components/ProductGrid';
+import ProductCTA from '@/components/ProductCTA';
 import Footer from '@/components/Footer';
 import { aiProducts, getCategories, getFeaturedProducts, filterProducts } from '@/data/products';
 
@@ -79,6 +80,7 @@ const Index = () => {
         </section>
       </main>
       
+      <ProductCTA />
       <Footer />
     </div>
   );
