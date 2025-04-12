@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, PlusCircle, Megaphone, MessageSquare } from 'lucide-react';
+import { Search, PlusCircle, Megaphone, MessageSquare, Info } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -39,6 +39,10 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
           <Link to="/" className="text-gray-600 hover:text-ai-purple transition-colors">Home</Link>
           <Link to="/categories" className="text-gray-600 hover:text-ai-purple transition-colors">Categories</Link>
           <Link to="/search" className="text-gray-600 hover:text-ai-purple transition-colors">Search</Link>
+          <Link to="/about" className="text-gray-600 hover:text-ai-purple transition-colors flex items-center gap-1">
+            <Info size={16} />
+            About Us
+          </Link>
           <Link to="/submit" className="text-gray-600 hover:text-ai-purple transition-colors flex items-center gap-1">
             <PlusCircle size={16} />
             Submit Tool

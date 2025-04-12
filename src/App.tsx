@@ -12,6 +12,7 @@ import Categories from "./pages/Categories";
 import SubmitTool from "./pages/SubmitTool";
 import AdvertiseTool from "./pages/AdvertiseTool";
 import Contact from "./pages/Contact";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/submit" element={<SubmitTool />} />
           <Route path="/advertise" element={<AdvertiseTool />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<AboutUs />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
