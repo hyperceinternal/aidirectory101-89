@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
 import AIToolDetails from "./pages/AIToolDetails";
 import Categories from "./pages/Categories";
+import SubmitTool from "./pages/SubmitTool";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/search" element={<Search />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/tool/:id" element={<AIToolDetails />} />
+          <Route path="/submit" element={<SubmitTool />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

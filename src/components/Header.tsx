@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, PlusCircle } from 'lucide-react';
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   onSearch: (term: string) => void;
@@ -14,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
   };
 
   return (
-    <header className="w-full bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50"> {/* Increased z-index to 50 */}
+    <header className="w-full bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between">
         <div className="flex items-center mb-4 md:mb-0">
           <Link to="/" className="text-2xl font-bold text-ai-dark">
@@ -38,7 +39,10 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
           <Link to="/" className="text-gray-600 hover:text-ai-purple transition-colors">Home</Link>
           <Link to="/categories" className="text-gray-600 hover:text-ai-purple transition-colors">Categories</Link>
           <Link to="/search" className="text-gray-600 hover:text-ai-purple transition-colors">Search</Link>
-          <a href="#" className="text-gray-600 hover:text-ai-purple transition-colors">New Products</a>
+          <Link to="/submit" className="text-gray-600 hover:text-ai-purple transition-colors flex items-center gap-1">
+            <PlusCircle size={16} />
+            Submit Tool
+          </Link>
         </nav>
       </div>
     </header>
