@@ -80,8 +80,10 @@ const Index = () => {
         </section>
       </main>
       
-      <ProductCTA />
-      <Footer />
+      <div className="mt-auto">
+        <ProductCTA />
+        <Footer />
+      </div>
     </div>
   );
 };

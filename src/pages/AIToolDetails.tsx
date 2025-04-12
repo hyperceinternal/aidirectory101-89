@@ -15,13 +15,13 @@ import ProductCTA from '@/components/ProductCTA';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { aiProducts } from '@/data/products';
-import type { Product } from '@/types/product';
+import type { AIProduct } from '@/types/product';
 
 const AIToolDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<AIProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -123,26 +123,12 @@ const AIToolDetails = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <ProductHeader 
-        name={product.name} 
-        logo={product.logo} 
-        onBack={goBack}
-        onShare={handleShare}
-        isFavorite={isFavorite}
-        onToggleFavorite={toggleFavorite}
-      />
+      <ProductHeader />
       
       <main className="flex-grow container mx-auto px-4 pt-32 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-10">
-            <ProductHero
-              name={product.name}
-              description={product.description}
-              image={product.screenshot}
-              categories={product.categories}
-              pricing={product.pricing}
-              rating={product.rating}
-            />
+            <ProductHero />
             
             <section>
               <h2 className="text-2xl font-bold mb-4">About {product.name}</h2>
@@ -154,7 +140,7 @@ const AIToolDetails = () => {
             {product.features && product.features.length > 0 && (
               <section>
                 <h2 className="text-2xl font-bold mb-6">Key Features</h2>
-                <ProductFeaturesList features={product.features} />
+                <ProductFeaturesList />
               </section>
             )}
             
@@ -239,7 +225,7 @@ const AIToolDetails = () => {
                       <div className="w-12 h-12 relative rounded overflow-hidden flex-shrink-0">
                         <AspectRatio ratio={1}>
                           <img 
-                            src={alt.logo || '/placeholder.svg'} 
+                            src={alt.icon || '/placeholder.svg'} 
                             alt={alt.name} 
                             className="object-cover" 
                           />
@@ -247,7 +233,7 @@ const AIToolDetails = () => {
                       </div>
                       <div className="flex-grow">
                         <h3 className="font-semibold">{alt.name}</h3>
-                        <p className="text-sm text-gray-600 line-clamp-1">{alt.shortDescription}</p>
+                        <p className="text-sm text-gray-600 line-clamp-1">{alt.description}</p>
                       </div>
                     </Link>
                   );
@@ -257,19 +243,15 @@ const AIToolDetails = () => {
           </div>
           
           <div className="lg:col-span-1 relative">
-            <ProductSidebar 
-              websiteUrl={product.websiteUrl}
-              pricingType={product.pricing}
-              pricingDetails={product.pricingDetails}
-              platforms={product.platforms}
-              lastUpdated={product.lastUpdated}
-            />
+            <ProductSidebar />
           </div>
         </div>
       </main>
       
-      <ProductCTA />
-      <Footer />
+      <div className="mt-auto">
+        <ProductCTA />
+        <Footer />
+      </div>
     </div>
   );
 };
