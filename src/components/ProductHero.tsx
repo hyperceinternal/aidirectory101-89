@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Star, ArrowRight, Users, Calendar } from 'lucide-react';
+import { ArrowRight, Users, Calendar, Star } from 'lucide-react';
 import { AIProduct } from '@/types/product';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,10 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
   if (!product) {
     return <div className="h-64 bg-gray-100 rounded-lg animate-pulse"></div>;
   }
+  
+  const handleTryButtonClick = () => {
+    window.open(product.url, '_blank', 'noopener,noreferrer');
+  };
   
   return (
     <div className="relative bg-gradient-to-b from-primary/10 to-white">
@@ -64,10 +67,12 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
           </div>
 
           <div className="flex justify-center relative z-10">
-            <Button size="lg" asChild>
-              <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                Try {product.name} <ArrowRight className="h-4 w-4" />
-              </a>
+            <Button 
+              size="lg" 
+              onClick={handleTryButtonClick}
+              className="flex items-center gap-2 relative"
+            >
+              Try {product.name} <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
