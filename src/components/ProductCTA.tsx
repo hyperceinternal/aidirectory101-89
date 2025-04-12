@@ -4,25 +4,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const ProductCTA: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Save email to the newsletter_subscribers table
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert([{ email }]);
+      
+      if (error) {
+        if (error.code === '23505') {
+          // Unique constraint violation - email already exists
+          toast({
+            title: "Already subscribed",
+            description: "This email is already subscribed to our newsletter.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Subscribed!",
+          description: "You've been added to our newsletter.",
+        });
+        setEmail('');
+      }
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
       toast({
-        title: "Subscribed!",
-        description: "You've been added to our newsletter.",
+        title: "Subscription failed",
+        description: "There was an error subscribing to the newsletter. Please try again.",
+        variant: "destructive",
       });
-      setEmail('');
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { AIProduct } from "@/types/product";
 
@@ -42,7 +41,8 @@ export const fetchAllTools = async (): Promise<AIProduct[]> => {
       pricingModel: tool.pricing_model,
       reviewCount: tool.review_count || 0,
       foundedYear: tool.founded_year,
-      userCount: tool.user_count
+      userCount: tool.user_count,
+      slug: tool.slug
     };
   });
 };
@@ -90,24 +90,40 @@ export const fetchFeaturedTools = async (): Promise<AIProduct[]> => {
       pricingModel: tool.pricing_model,
       reviewCount: tool.review_count || 0,
       foundedYear: tool.founded_year,
-      userCount: tool.user_count
+      userCount: tool.user_count,
+      slug: tool.slug
     };
   });
 };
 
-export const fetchToolById = async (id: string): Promise<AIProduct | null> => {
-  const { data: tool, error } = await supabase
+export const fetchToolById = async (idOrSlug: string): Promise<AIProduct | null> => {
+  // Try to fetch by slug first
+  let { data: tool, error } = await supabase
     .from('ai_tools')
     .select('*')
-    .eq('id', id)
+    .eq('slug', idOrSlug)
     .single();
-
-  if (error) {
-    if (error.code === 'PGRST116') {
-      // Record not found
-      return null;
+  
+  // If not found by slug, try by ID
+  if (error && error.code === 'PGRST116') {
+    const { data: toolById, error: errorById } = await supabase
+      .from('ai_tools')
+      .select('*')
+      .eq('id', idOrSlug)
+      .single();
+    
+    if (errorById) {
+      if (errorById.code === 'PGRST116') {
+        // Record not found by either slug or ID
+        return null;
+      }
+      console.error("Error fetching AI tool by ID:", errorById);
+      throw errorById;
     }
-    console.error("Error fetching AI tool:", error);
+    
+    tool = toolById;
+  } else if (error) {
+    console.error("Error fetching AI tool by slug:", error);
     throw error;
   }
 
@@ -149,6 +165,7 @@ export const fetchToolById = async (id: string): Promise<AIProduct | null> => {
     reviewCount: tool.review_count || 0,
     foundedYear: tool.founded_year,
     userCount: tool.user_count,
+    slug: tool.slug,
     useCases: useCasesData.map(useCase => ({
       title: useCase.title,
       description: useCase.description

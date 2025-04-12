@@ -79,6 +79,7 @@ export type Database = {
           rating: number | null
           review_count: number | null
           short_description: string | null
+          slug: string | null
           updated_at: string | null
           url: string
           user_count: number | null
@@ -97,6 +98,7 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           short_description?: string | null
+          slug?: string | null
           updated_at?: string | null
           url: string
           user_count?: number | null
@@ -115,9 +117,28 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           short_description?: string | null
+          slug?: string | null
           updated_at?: string | null
           url?: string
           user_count?: number | null
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
         }
         Relationships: []
       }

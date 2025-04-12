@@ -15,6 +15,7 @@ export interface AIProduct {
   foundedYear?: number;
   userCount?: number;
   useCases?: UseCase[];
+  slug?: string;
 }
 
 export interface UseCase {
