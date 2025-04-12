@@ -11,6 +11,7 @@ import AIToolDetails from "./pages/AIToolDetails";
 import Categories from "./pages/Categories";
 import SubmitTool from "./pages/SubmitTool";
 import AdvertiseTool from "./pages/AdvertiseTool";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/tool/:id" element={<AIToolDetails />} />
           <Route path="/submit" element={<SubmitTool />} />
           <Route path="/advertise" element={<AdvertiseTool />} />
+          <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
