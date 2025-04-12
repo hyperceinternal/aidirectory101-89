@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, Heart, Share2 } from 'lucide-react';
+import { Globe, Share2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 interface ProductSidebarProps {
   websiteUrl: string;
   categories: string[];
+  onShare: () => void;
 }
 
-const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories }) => {
+const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories, onShare }) => {
   return (
     <div className="space-y-6">
       <Card className="sticky top-24">
@@ -30,11 +31,11 @@ const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories 
               Visit Website
             </a>
           </Button>
-          <Button variant="outline" className="w-full flex items-center justify-center gap-2">
-            <Heart className="h-4 w-4" />
-            Save to Collection
-          </Button>
-          <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+          <Button 
+            variant="outline" 
+            className="w-full flex items-center justify-center gap-2"
+            onClick={onShare}
+          >
             <Share2 className="h-4 w-4" />
             Share Tool
           </Button>

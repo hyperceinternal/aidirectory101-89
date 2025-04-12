@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AIProduct } from '@/types/product';
@@ -9,12 +10,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import ProductHeader from '@/components/ProductHeader';
 import ProductHero from '@/components/ProductHero';
 import ProductInfoCards from '@/components/ProductInfoCard';
 import ProductFeaturesList from '@/components/ProductFeaturesList';
 import ProductSidebar from '@/components/ProductSidebar';
 import ProductCTA from '@/components/ProductCTA';
+import { useToast } from "@/hooks/use-toast";
 
 const renderIcon = (iconName: string) => {
   const icons = {
@@ -33,6 +34,7 @@ const AIToolDetails = () => {
   const [product, setProduct] = useState<AIProduct | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<AIProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     setLoading(true);
@@ -61,8 +63,7 @@ const AIToolDetails = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
-        <div className="animate-pulse h-20 bg-white"></div>
-        <div className="animate-pulse h-80 bg-primary/10"></div>
+        <div className="animate-pulse h-80 bg-primary/10 mt-16"></div>
         <main className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -115,15 +116,25 @@ const AIToolDetails = () => {
     icon: ["Zap", "Globe", "Shield", "BarChart"][Math.floor(Math.random() * 4)]
   }));
 
+  const handleShareTool = () => {
+    const shareUrl = window.location.href;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      toast({
+        title: "Link copied to clipboard",
+        description: "You can now share this tool with others."
+      });
+    }).catch(err => {
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy the link to clipboard.",
+        variant: "destructive"
+      });
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
-      
-      <ProductHeader 
-        name={product.name} 
-        logo={product.image} 
-        websiteUrl={product.url} 
-      />
       
       <ProductHero product={product} />
       
@@ -279,6 +290,7 @@ const AIToolDetails = () => {
             <ProductSidebar 
               websiteUrl={product.url} 
               categories={[product.category]} 
+              onShare={handleShareTool}
             />
           </div>
         </div>
