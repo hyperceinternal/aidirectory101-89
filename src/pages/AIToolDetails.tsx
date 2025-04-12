@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
@@ -111,6 +110,12 @@ const AIToolDetails = () => {
     }
   };
 
+  const handleTryButtonClick = () => {
+    if (product) {
+      window.open(product.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -191,10 +196,8 @@ const AIToolDetails = () => {
             </div>
             
             <div className="flex justify-center">
-              <Button size="lg" asChild>
-                <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  Try {product.name} <ArrowRight className="h-4 w-4" />
-                </a>
+              <Button size="lg" onClick={handleTryButtonClick} className="flex items-center gap-2">
+                Try {product.name} <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
