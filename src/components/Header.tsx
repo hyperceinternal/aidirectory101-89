@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, PlusCircle, Megaphone, MessageSquare, Info } from 'lucide-react';
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,16 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearch(e.target.value);
+    setSearchTerm(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSearch(searchTerm);
+    }
   };
 
   return (
@@ -30,7 +38,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
               type="text" 
               placeholder="Search AI products..." 
               className="pl-10 w-full"
+              value={searchTerm}
               onChange={handleSearchChange}
+              onKeyDown={handleSearchSubmit}
             />
           </div>
         </div>
