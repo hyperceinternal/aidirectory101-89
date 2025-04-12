@@ -1,14 +1,32 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, ExternalLink, Tag, Globe, Users, Zap, Calendar, Check, CircleX } from 'lucide-react';
 import { AIProduct, aiProducts } from '@/data/products';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Zap, Globe, Shield, BarChart, Check, Download } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import ProductHeader from '@/components/ProductHeader';
+import ProductHero from '@/components/ProductHero';
+import ProductInfoCards from '@/components/ProductInfoCard';
+import ProductFeaturesList from '@/components/ProductFeaturesList';
+import ProductSidebar from '@/components/ProductSidebar';
+import ProductCTA from '@/components/ProductCTA';
+
+// Helper function to render the appropriate icon
+const renderIcon = (iconName: string) => {
+  const icons = {
+    Zap: <Zap className="h-5 w-5 text-primary" />,
+    Globe: <Globe className="h-5 w-5 text-primary" />,
+    Shield: <Shield className="h-5 w-5 text-primary" />,
+    BarChart: <BarChart className="h-5 w-5 text-primary" />,
+  };
+
+  return icons[iconName as keyof typeof icons] || <Zap className="h-5 w-5 text-primary" />;
+};
 
 const AIToolDetails = () => {
   const { id } = useParams();
@@ -18,27 +36,23 @@ const AIToolDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading
     setLoading(true);
     
-    // Find the product with the matching id
     const foundProduct = aiProducts.find(p => p.id === id);
     
     if (foundProduct) {
       setProduct(foundProduct);
       
-      // Find related products (same category or shared tags)
       const related = aiProducts
         .filter(p => p.id !== id && 
           (p.category === foundProduct.category || 
            p.tags.some(tag => foundProduct.tags.includes(tag)))
         )
-        .slice(0, 3); // Limit to 3 related products
+        .slice(0, 3);
       
       setRelatedProducts(related);
     }
     
-    // Simulate API delay
     setTimeout(() => {
       setLoading(false);
     }, 500);
@@ -46,12 +60,22 @@ const AIToolDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gray-50">
         <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
-        <main className="flex-grow pt-24 px-4 container mx-auto">
-          <div className="animate-pulse bg-gray-100 h-96 rounded-lg mb-8"></div>
-          <div className="animate-pulse bg-gray-100 h-20 rounded-lg mb-4"></div>
-          <div className="animate-pulse bg-gray-100 h-40 rounded-lg"></div>
+        <div className="animate-pulse h-20 bg-white"></div>
+        <div className="animate-pulse h-80 bg-primary/10"></div>
+        <main className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <Skeleton className="h-12 w-96 mb-8" />
+              <Skeleton className="h-[600px] w-full" />
+            </div>
+            <div>
+              <Skeleton className="h-80 w-full mb-6" />
+              <Skeleton className="h-60 w-full mb-6" />
+              <Skeleton className="h-60 w-full" />
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -68,7 +92,6 @@ const AIToolDetails = () => {
             <p className="text-gray-600 mb-8">The AI tool you're looking for doesn't exist or has been removed.</p>
             <Link to="/">
               <Button>
-                <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Homepage
               </Button>
             </Link>
@@ -79,251 +102,210 @@ const AIToolDetails = () => {
     );
   }
 
+  // Generate use cases from tags for demo
+  const useCases = [
+    { title: "Content creation for blogs and social media" },
+    { title: "Academic research and paper writing" },
+    { title: "Email drafting and communication" },
+    { title: "Creative writing and storytelling" },
+    { title: "Business documentation and reports" },
+  ];
+
+  // Generate features from tags for demo
+  const features = product.tags.map(tag => ({
+    name: `${tag} functionality`,
+    description: `Advanced capabilities for ${tag.toLowerCase()} tasks.`,
+    icon: ["Zap", "Globe", "Shield", "BarChart"][Math.floor(Math.random() * 4)]
+  }));
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
       
-      <main className="flex-grow pt-20 px-4 container mx-auto">
-        {/* Product Header Section - Improved Layout */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            {/* Product Logo */}
-            <div className="md:col-span-1">
-              <div className="w-24 h-24 bg-white rounded-lg border border-gray-100 p-2 flex items-center justify-center">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="max-h-full w-auto object-contain"
+      <ProductHeader 
+        name={product.name} 
+        logo={product.image} 
+        websiteUrl={product.url} 
+      />
+      
+      <ProductHero product={product} />
+      
+      <main className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="mb-8 w-full justify-start overflow-x-auto">
+                <TabsTrigger value="overview" className="px-6">
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="features" className="px-6">
+                  Features
+                </TabsTrigger>
+                <TabsTrigger value="screenshots" className="px-6">
+                  Screenshots
+                </TabsTrigger>
+                <TabsTrigger value="pricing" className="px-6">
+                  Pricing
+                </TabsTrigger>
+                <TabsTrigger value="reviews" className="px-6">
+                  Reviews
+                </TabsTrigger>
+                <TabsTrigger value="alternatives" className="px-6">
+                  Alternatives
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">About {product.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 leading-relaxed">
+                      {product.name} is a cutting-edge artificial intelligence tool designed to enhance productivity and creativity. 
+                      It leverages the latest advancements in natural language processing to provide assistance with 
+                      {product.tags.map(tag => ` ${tag.toLowerCase()}`).join(',')}. 
+                      Whether you're a professional writer, marketer, student, or just someone looking to streamline your workflow, 
+                      {product.name} offers the features you need.
+                    </p>
+
+                    <ProductFeaturesList useCases={useCases} />
+                  </CardContent>
+                </Card>
+
+                <ProductInfoCards 
+                  rating={product.rating} 
+                  reviewCount={328} 
+                  foundedYear={2021} 
                 />
-              </div>
-            </div>
-            
-            {/* Product Information */}
-            <div className="md:col-span-7">
-              <h1 className="text-3xl font-bold text-ai-dark mb-2">{product.name}</h1>
-              <p className="text-gray-600 mb-4">{product.description}</p>
-              
-              <div className="flex flex-wrap gap-2">
-                {product.tags.slice(0, 4).map((tag, index) => (
-                  <Badge key={index} variant="outline" className="bg-gray-100">
-                    <Tag className="h-3 w-3 mr-1" />
-                    {tag}
-                  </Badge>
-                ))}
-                {product.tags.length > 4 && (
-                  <Badge variant="outline" className="bg-gray-100">
-                    +{product.tags.length - 4} more
-                  </Badge>
-                )}
-              </div>
-            </div>
-            
-            {/* Rating Box */}
-            <div className="md:col-span-2">
-              <div className="flex flex-col items-center bg-gray-50 rounded-lg p-4">
-                <div className="text-4xl font-bold text-ai-purple mb-1">{product.rating.toFixed(1)}</div>
-                <div className="flex items-center mb-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`h-4 w-4 ${i < Math.round(product.rating) 
-                        ? 'text-yellow-400 fill-yellow-400' 
-                        : 'text-gray-300'}`} 
-                    />
-                  ))}
-                </div>
-                <p className="text-xs text-gray-500">User Rating</p>
-                <p className="text-xs text-gray-500">Based on 10 reviews</p>
-              </div>
-            </div>
-            
-            {/* Visit Website Button */}
-            <div className="md:col-span-2 flex justify-center md:justify-end">
-              <a 
-                href={product.url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex items-center justify-center w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Visit Website <ExternalLink className="ml-2 h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        {/* Info Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4">
-            <div className="flex items-start">
-              <div className="bg-blue-100 p-2 rounded-full mr-3">
-                <Globe className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-sm text-gray-600">Platforms</h3>
-                <p className="font-semibold">{product.category}</p>
-              </div>
-            </div>
-          </Card>
-          
-          <Card className="p-4">
-            <div className="flex items-start">
-              <div className="bg-purple-100 p-2 rounded-full mr-3">
-                <Users className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="text-sm text-gray-600">User Types</h3>
-                <p className="font-semibold">{product.tags.length} Types</p>
-              </div>
-            </div>
-          </Card>
-          
-          <Card className="p-4">
-            <div className="flex items-start">
-              <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                <Zap className="h-5 w-5 text-yellow-600" />
-              </div>
-              <div>
-                <h3 className="text-sm text-gray-600">Features</h3>
-                <p className="font-semibold">{product.tags.length}+ Features</p>
-              </div>
-            </div>
-          </Card>
-          
-          <Card className="p-4">
-            <div className="flex items-start">
-              <div className="bg-red-100 p-2 rounded-full mr-3">
-                <Calendar className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <h3 className="text-sm text-gray-600">Last Updated</h3>
-                <p className="font-semibold">April 2025</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-        
-        {/* Tabs Section */}
-        <Tabs defaultValue="overview" className="mb-8">
-          <TabsList className="border-b w-full justify-start rounded-none bg-transparent mb-4 pb-0">
-            <TabsTrigger 
-              value="overview" 
-              className="data-[state=active]:border-b-2 data-[state=active]:border-ai-purple rounded-none bg-transparent"
-            >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger 
-              value="integrations" 
-              className="data-[state=active]:border-b-2 data-[state=active]:border-ai-purple rounded-none bg-transparent"
-            >
-              Integrations
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="mt-0">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                  <h2 className="text-xl font-bold text-ai-dark mb-4">{product.name} Review</h2>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Top Features, Pros, Cons & User Reviews</h3>
-                  <p className="text-gray-700 mb-6">{product.name} is an {product.category} that {product.description}</p>
-                  
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">What is {product.name}?</h3>
-                  <p className="text-gray-700 mb-6">
-                    {product.name} is a powerful {product.category.toLowerCase()} tool designed to help users 
-                    {product.description.toLowerCase()}. It offers a range of features including {product.tags.join(', ')}.
-                  </p>
-                  
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Who is {product.name} best for?</h3>
-                  <p className="text-gray-700">
-                    This tool is ideal for users interested in {product.category} who need solutions for 
-                    {product.tags.map(tag => ` ${tag.toLowerCase()}`).join(',')}. Whether you're a beginner or 
-                    an expert, {product.name} offers features that can enhance your workflow.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="lg:col-span-1">
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                  <h2 className="text-xl font-bold text-ai-dark mb-4 uppercase">{product.name} Features</h2>
-                  <ul className="space-y-4">
-                    {product.tags.map((tag, index) => (
-                      <li key={index} className="flex items-start">
-                        <div className="bg-green-100 p-1 rounded-full mr-3 mt-1">
-                          <Check className="h-4 w-4 text-green-600" />
+              </TabsContent>
+
+              <TabsContent value="features" className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Key Features</CardTitle>
+                    <CardDescription>Discover what makes {product.name} stand out from the competition</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 gap-8">
+                      {features.map((feature, index) => (
+                        <div key={index} className="flex gap-4">
+                          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                            {renderIcon(feature.icon)}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-lg mb-2">{feature.name}</h3>
+                            <p className="text-gray-600">{feature.description}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-medium text-gray-800">{tag} functionality</h4>
-                          <p className="text-sm text-green-600">{tag}</p>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-r from-primary/5 to-transparent border-primary/20">
+                  <CardContent className="p-8">
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      <div className="md:w-1/4 flex justify-center">
+                        <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
+                          <Download className="h-10 w-10 text-primary" />
                         </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-ai-dark mb-4 uppercase">Limitations</h2>
-                  <ul className="space-y-4">
-                    <li className="flex items-start">
-                      <div className="bg-red-100 p-1 rounded-full mr-3 mt-1">
-                        <CircleX className="h-4 w-4 text-red-600" />
                       </div>
-                      <div>
-                        <h4 className="font-medium text-gray-800">Limited free tier</h4>
-                        <p className="text-sm text-red-600">Pricing</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="bg-red-100 p-1 rounded-full mr-3 mt-1">
-                        <CircleX className="h-4 w-4 text-red-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-800">Learning curve for beginners</h4>
-                        <p className="text-sm text-red-600">User Experience</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="integrations">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-bold text-ai-dark mb-4">Integrations</h2>
-              <p className="text-gray-600">No integration information available for this product.</p>
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        {/* Related Products Section */}
-        <div className="mb-12">
-          <h2 className="text-xl font-bold text-ai-dark mb-6">Related Products</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {relatedProducts.length > 0 ? (
-              relatedProducts.map(related => (
-                <Link key={related.id} to={`/tool/${related.id}`} className="block">
-                  <Card className="overflow-hidden transition-all hover:shadow-md p-4">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center mr-4">
-                        <img src={related.image} alt={related.name} className="max-w-full max-h-full p-2" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-ai-dark">{related.name}</h3>
-                        <div className="flex items-center">
-                          <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 mr-1" />
-                          <span className="text-sm text-gray-500">{related.rating.toFixed(1)}</span>
-                        </div>
+                      <div className="md:w-3/4 text-center md:text-left">
+                        <h3 className="text-xl font-semibold mb-2">Ready to experience {product.name}?</h3>
+                        <p className="text-gray-600 mb-4">
+                          Join thousands of satisfied users and transform your workflow today.
+                        </p>
+                        <Button asChild>
+                          <a href={product.url} target="_blank" rel="noopener noreferrer">
+                            Get Started for Free
+                          </a>
+                        </Button>
                       </div>
                     </div>
-                  </Card>
-                </Link>
-              ))
-            ) : (
-              <p className="text-gray-500 col-span-3">No related tools found</p>
-            )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="screenshots" className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Screenshots & Interface</CardTitle>
+                    <CardDescription>Take a visual tour of {product.name}'s interface and features</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Screenshots coming soon!</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="pricing" className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Pricing Plans</CardTitle>
+                    <CardDescription>{product.name} offers flexible pricing options to suit your needs</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Pricing information coming soon!</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="reviews" className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">User Reviews</CardTitle>
+                    <CardDescription>See what others are saying about {product.name}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600">Reviews coming soon!</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="alternatives" className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Similar Tools</CardTitle>
+                    <CardDescription>Compare {product.name} with alternatives</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {relatedProducts.map((alt) => (
+                        <Link key={alt.id} to={`/tool/${alt.id}`}>
+                          <div className="flex items-center gap-4 p-6 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <img
+                              src={alt.image}
+                              alt={`${alt.name} logo`}
+                              className="w-12 h-12 rounded-md object-contain"
+                            />
+                            <div className="flex-grow">
+                              <h3 className="font-medium text-lg">{alt.name}</h3>
+                              <p className="text-sm text-gray-600">Alternative to {product.name}</p>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          <div>
+            <ProductSidebar 
+              websiteUrl={product.url} 
+              categories={[product.category]} 
+            />
           </div>
         </div>
       </main>
+      
+      <ProductCTA 
+        productName={product.name} 
+        websiteUrl={product.url} 
+      />
       
       <Footer />
     </div>
