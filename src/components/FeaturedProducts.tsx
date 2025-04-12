@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Star, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -12,14 +11,14 @@ interface FeaturedProductsProps {
 }
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
+  const limitedProducts = products.slice(0, 5);
+  
   const [activeIndex, setActiveIndex] = useState(0);
   
-  if (products.length === 0) return null;
+  if (limitedProducts.length === 0) return null;
   
-  // Ensure we have the active product
-  const activeTool = products[activeIndex];
+  const activeTool = limitedProducts[activeIndex];
   
-  // Get the appropriate color class based on product category
   const getColorClass = (category: string) => {
     switch(category) {
       case 'Language Model':
@@ -37,7 +36,6 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
     }
   };
 
-  // Get highlight text for each product
   const getHighlight = (index: number, product: AIProduct) => {
     if (index === 0) return "Most Popular";
     if (product.rating >= 4.8) return "Top Rated";
@@ -64,9 +62,8 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Featured tool navigation */}
           <div className="lg:col-span-3 flex flex-row lg:flex-col gap-3 overflow-x-auto pb-4 lg:pb-0">
-            {products.map((product, index) => (
+            {limitedProducts.map((product, index) => (
               <button
                 key={product.id}
                 onClick={() => setActiveIndex(index)}
@@ -101,12 +98,10 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
             ))}
           </div>
 
-          {/* Featured tool showcase */}
           <div className="lg:col-span-9">
             <Card className="overflow-hidden border-0 shadow-xl">
               <div className={`bg-gradient-to-r ${getColorClass(activeTool.category)} p-0`}>
                 <div className="flex flex-col md:flex-row">
-                  {/* Tool image */}
                   <div className="md:w-1/2 relative">
                     <div className="aspect-[4/3] relative overflow-hidden">
                       <img
@@ -130,7 +125,6 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
                     </div>
                   </div>
 
-                  {/* Tool info */}
                   <div className="md:w-1/2 p-8 text-white">
                     <div className="flex items-center justify-between mb-2">
                       <h2 className="text-3xl font-bold">{activeTool.name}</h2>
@@ -177,7 +171,6 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
                 </div>
               </div>
 
-              {/* Stats bar */}
               <div className="bg-white p-4 grid grid-cols-3 divide-x divide-gray-100">
                 <div className="px-4 py-2 text-center">
                   <p className="text-sm text-gray-500">Users</p>
