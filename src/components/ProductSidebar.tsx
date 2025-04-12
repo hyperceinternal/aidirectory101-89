@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Globe, Share2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,32 +14,35 @@ interface ProductSidebarProps {
 const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories, onShare }) => {
   return (
     <div className="space-y-6">
-      <Card className="sticky top-24">
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button asChild className="w-full">
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2"
+      {/* Set a fixed height for the container and make it sticky */}
+      <div className="sticky top-24">
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button asChild className="w-full">
+              <a
+                href={websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2"
+              >
+                <Globe className="h-4 w-4" />
+                Visit Website
+              </a>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full flex items-center justify-center gap-2"
+              onClick={onShare}
             >
-              <Globe className="h-4 w-4" />
-              Visit Website
-            </a>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full flex items-center justify-center gap-2"
-            onClick={onShare}
-          >
-            <Share2 className="h-4 w-4" />
-            Share Tool
-          </Button>
-        </CardContent>
-      </Card>
+              <Share2 className="h-4 w-4" />
+              Share Tool
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
