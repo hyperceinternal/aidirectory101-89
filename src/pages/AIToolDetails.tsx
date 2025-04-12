@@ -84,55 +84,70 @@ const AIToolDetails = () => {
       <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
       
       <main className="flex-grow pt-20 px-4 container mx-auto">
-        {/* Product Header Section */}
-        <div className="flex flex-col md:flex-row items-start gap-6 mb-8">
-          <div className="w-24 h-24 bg-white rounded-lg shadow-sm p-2 flex items-center justify-center">
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              className="max-h-full w-auto object-contain"
-            />
-          </div>
-          
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-ai-dark mb-2">{product.name}</h1>
-            <p className="text-gray-600 mb-4">{product.description}</p>
-            
-            <div className="flex flex-wrap gap-2">
-              {product.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="bg-gray-100">
-                  <Tag className="h-3 w-3 mr-1" />
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-center bg-white rounded-lg shadow-sm p-4 min-w-[150px]">
-            <div className="text-4xl font-bold text-ai-purple mb-1">{product.rating.toFixed(1)}</div>
-            <div className="flex items-center mb-1">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className={`h-4 w-4 ${i < Math.round(product.rating) 
-                    ? 'text-yellow-400 fill-yellow-400' 
-                    : 'text-gray-300'}`} 
+        {/* Product Header Section - Improved Layout */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            {/* Product Logo */}
+            <div className="md:col-span-1">
+              <div className="w-24 h-24 bg-white rounded-lg border border-gray-100 p-2 flex items-center justify-center">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="max-h-full w-auto object-contain"
                 />
-              ))}
+              </div>
             </div>
-            <p className="text-xs text-gray-500">User Rating</p>
-            <p className="text-xs text-gray-500">Based on {10} reviews</p>
-          </div>
-          
-          <div>
-            <a 
-              href={product.url} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-            >
-              Visit Website <ExternalLink className="inline h-4 w-4 ml-1" />
-            </a>
+            
+            {/* Product Information */}
+            <div className="md:col-span-7">
+              <h1 className="text-3xl font-bold text-ai-dark mb-2">{product.name}</h1>
+              <p className="text-gray-600 mb-4">{product.description}</p>
+              
+              <div className="flex flex-wrap gap-2">
+                {product.tags.slice(0, 4).map((tag, index) => (
+                  <Badge key={index} variant="outline" className="bg-gray-100">
+                    <Tag className="h-3 w-3 mr-1" />
+                    {tag}
+                  </Badge>
+                ))}
+                {product.tags.length > 4 && (
+                  <Badge variant="outline" className="bg-gray-100">
+                    +{product.tags.length - 4} more
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            {/* Rating Box */}
+            <div className="md:col-span-2">
+              <div className="flex flex-col items-center bg-gray-50 rounded-lg p-4">
+                <div className="text-4xl font-bold text-ai-purple mb-1">{product.rating.toFixed(1)}</div>
+                <div className="flex items-center mb-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`h-4 w-4 ${i < Math.round(product.rating) 
+                        ? 'text-yellow-400 fill-yellow-400' 
+                        : 'text-gray-300'}`} 
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500">User Rating</p>
+                <p className="text-xs text-gray-500">Based on 10 reviews</p>
+              </div>
+            </div>
+            
+            {/* Visit Website Button */}
+            <div className="md:col-span-2 flex justify-center md:justify-end">
+              <a 
+                href={product.url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center justify-center w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Visit Website <ExternalLink className="ml-2 h-4 w-4" />
+              </a>
+            </div>
           </div>
         </div>
         
