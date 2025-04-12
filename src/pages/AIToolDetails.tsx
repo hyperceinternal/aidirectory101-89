@@ -1,19 +1,29 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ExternalLink, ArrowRight } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { 
+  ArrowRight, 
+  Star, 
+  Users, 
+  Calendar, 
+  Globe, 
+  Share2, 
+  Heart, 
+  Check 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 import ProductHeader from '@/components/ProductHeader';
-import ProductFeaturesList from '@/components/ProductFeaturesList';
 import ProductSidebar from '@/components/ProductSidebar';
-import ProductHero from '@/components/ProductHero';
-import ProductCTA from '@/components/ProductCTA';
+import ProductFeaturesList from '@/components/ProductFeaturesList';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { aiProducts } from '@/data/products';
 import type { AIProduct } from '@/types/product';
+import ProductInfoCard from '@/components/ProductInfoCard';
 
 // Define mock data for the sections that aren't in our AIProduct type
 interface UseCase {
@@ -23,7 +33,6 @@ interface UseCase {
 
 const AIToolDetails = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [product, setProduct] = useState<AIProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,8 +40,6 @@ const AIToolDetails = () => {
   
   // Mock data for sections not in our AIProduct type
   const [useCases, setUseCases] = useState<UseCase[]>([]);
-  const [integrations, setIntegrations] = useState<string[]>([]);
-  const [alternatives, setAlternatives] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchProductDetails = () => {
@@ -48,15 +55,12 @@ const AIToolDetails = () => {
           
           // Set mock data
           setUseCases([
-            { title: "Content Creation", description: "Generate high-quality content quickly" },
-            { title: "Customer Support", description: "Automate responses to common questions" },
-            { title: "Data Analysis", description: "Extract insights from large datasets" },
-            { title: "Research Assistant", description: "Help with research and summarization" }
+            { title: "Content creation for blogs and social media", description: "Generate high-quality content quickly" },
+            { title: "Academic research and paper writing", description: "Help with research and summarization" },
+            { title: "Email drafting and communication", description: "Automate responses to common questions" },
+            { title: "Creative writing and storytelling", description: "Get inspiration and content ideas" },
+            { title: "Business documentation and reports", description: "Extract insights from large datasets" },
           ]);
-          
-          setIntegrations(["Slack", "Microsoft Teams", "Google Workspace", "Zapier", "GitHub"]);
-          
-          setAlternatives(["2", "3", "6"]); // IDs of alternative products
           
           // Check if favorite
           const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -98,8 +102,8 @@ const AIToolDetails = () => {
       localStorage.setItem('favorites', JSON.stringify(newFavorites));
       setIsFavorite(false);
       toast({
-        title: "Removed from favorites",
-        description: `${product.name} has been removed from your favorites.`,
+        title: "Removed from collection",
+        description: `${product.name} has been removed from your collection.`,
       });
     } else {
       // Add to favorites
@@ -107,8 +111,8 @@ const AIToolDetails = () => {
       localStorage.setItem('favorites', JSON.stringify(favorites));
       setIsFavorite(true);
       toast({
-        title: "Added to favorites",
-        description: `${product.name} has been added to your favorites.`,
+        title: "Added to collection",
+        description: `${product.name} has been added to your collection.`,
       });
     }
   };
@@ -139,139 +143,185 @@ const AIToolDetails = () => {
     );
   }
 
+  const foundedYear = 2021;
+  const currentYear = new Date().getFullYear();
+  const yearsInIndustry = currentYear - foundedYear;
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <ProductHeader 
         name={product.name} 
         logo={product.image} 
         websiteUrl={product.url}
         onShare={handleShare}
+        onSave={toggleFavorite}
       />
       
-      <main className="flex-grow container mx-auto px-4 pt-8 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-10">
-            {/* Hero section with logo and description */}
-            <div className="mb-12 text-center">
-              <div className="inline-block p-4 bg-white rounded-xl shadow-sm mb-6">
-                <img
-                  src={product.image}
-                  alt={`${product.name} logo`}
-                  className="w-24 h-24 object-contain"
-                />
-              </div>
-              <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
-              <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">{product.description}</p>
-              
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                {product.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="px-3 py-1 text-sm">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              
-              <div className="flex justify-center items-center gap-6 mb-8">
-                <div className="flex items-center">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-5 h-5 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}>
-                        <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="ml-2 font-medium">
-                    {product.rating.toFixed(1)}/5 ({product.reviewCount || 0} reviews)
-                  </span>
+      {/* Hero Section */}
+      <div className="bg-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-block p-4 bg-white rounded-xl shadow-sm mb-6">
+              <img
+                src={product.image}
+                alt={`${product.name} logo`}
+                className="w-24 h-24 object-contain"
+              />
+            </div>
+            <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
+            <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">{product.description}</p>
+            
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              {product.tags.map((tag, index) => (
+                <Badge key={index} variant="secondary" className="px-3 py-1 text-sm">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-6 mb-8">
+              <div className="flex items-center">
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-5 h-5 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} />
+                  ))}
                 </div>
-                
-                <div className="flex items-center gap-1">
-                  <span>10,000+ users</span>
-                </div>
-                
-                <div className="flex items-center gap-1">
-                  <span>Founded 2021</span>
-                </div>
+                <span className="ml-2 font-medium">
+                  {product.rating.toFixed(1)}/5 ({product.reviewCount || 0} reviews)
+                </span>
               </div>
               
+              <div className="flex items-center gap-1">
+                <Users className="h-5 w-5 text-gray-500" />
+                <span>10,000+ users</span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <Calendar className="h-5 w-5 text-gray-500" />
+                <span>Founded {foundedYear}</span>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-4">
               <Button size="lg" asChild>
                 <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   Try {product.name} <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
+              <Button variant="outline" size="lg">
+                Compare with alternatives
+              </Button>
             </div>
-            
-            <section>
-              <h2 className="text-2xl font-bold mb-4">About {product.name}</h2>
-              <div className="prose max-w-none">
-                <p className="text-gray-700">{product.description}</p>
-              </div>
-            </section>
-            
-            {useCases.length > 0 && (
-              <section>
-                <h2 className="text-2xl font-bold mb-6">Key Features</h2>
-                <ProductFeaturesList useCases={useCases} />
-              </section>
-            )}
-            
-            <section>
-              <h2 className="text-2xl font-bold mb-6">Use Cases</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {useCases.map((useCase, index) => (
-                  <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                    <h3 className="font-semibold text-lg mb-2">{useCase.title}</h3>
-                    <p className="text-gray-600">{useCase.description}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-            
-            <section>
-              <h2 className="text-2xl font-bold mb-4">Integrations</h2>
-              <div className="flex flex-wrap gap-2">
-                {integrations.map((integration, index) => (
-                  <Badge key={index} variant="outline" className="px-3 py-1">
-                    {integration}
-                  </Badge>
-                ))}
-              </div>
-            </section>
-            
-            <section>
-              <h2 className="text-2xl font-bold mb-6">Alternative AI Tools</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {alternatives.map((altId, index) => {
-                  const alt = aiProducts.find(p => p.id === altId);
-                  if (!alt) return null;
-                  
-                  return (
-                    <Link 
-                      key={index} 
-                      to={`/tool/${alt.id}`}
-                      className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:bg-gray-50"
-                    >
-                      <div className="w-12 h-12 relative rounded overflow-hidden flex-shrink-0">
-                        <AspectRatio ratio={1}>
-                          <img 
-                            src={alt.image || '/placeholder.svg'} 
-                            alt={alt.name} 
-                            className="object-cover" 
-                          />
-                        </AspectRatio>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Content with Tabs */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="mb-8 bg-transparent justify-start overflow-x-auto">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="features">Features</TabsTrigger>
+                <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
+                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                <TabsTrigger value="alternatives">Alternatives</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>About {product.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 leading-relaxed">
+                      {product.description}
+                    </p>
+                    {useCases.length > 0 && (
+                      <div className="mt-8">
+                        <h3 className="text-lg font-medium mb-4">Key Use Cases</h3>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {useCases.map((useCase, index) => (
+                            <li key={index} className="flex items-start">
+                              <div className="mr-2 mt-1 bg-primary/10 rounded-full p-1">
+                                <Check className="h-4 w-4 text-primary" />
+                              </div>
+                              <span>{useCase.title}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      <div className="flex-grow">
-                        <h3 className="font-semibold">{alt.name}</h3>
-                        <p className="text-sm text-gray-600 line-clamp-1">{alt.description}</p>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <ProductInfoCard 
+                  rating={product.rating} 
+                  reviewCount={product.reviewCount || 0} 
+                  foundedYear={foundedYear} 
+                />
+              </TabsContent>
+
+              <TabsContent value="features">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Features</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Features content will go here.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="screenshots">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Screenshots</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Screenshots will go here.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="pricing">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Pricing</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Pricing information: {product.pricingModel}</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="reviews">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Reviews</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Reviews will go here.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="alternatives">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Alternatives</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>Alternative products will go here.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
           
-          <div className="lg:col-span-1 relative">
+          <div className="lg:col-span-1">
             <ProductSidebar 
               websiteUrl={product.url}
               categories={product.tags}
@@ -279,10 +329,9 @@ const AIToolDetails = () => {
             />
           </div>
         </div>
-      </main>
+      </div>
       
       <div className="mt-auto">
-        <ProductCTA />
         <Footer />
       </div>
     </div>
