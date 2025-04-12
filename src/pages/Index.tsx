@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import CategoryFilter from '@/components/CategoryFilter';
@@ -8,6 +9,7 @@ import Footer from '@/components/Footer';
 import { aiProducts, getCategories, getFeaturedProducts, filterProducts } from '@/data/products';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredProducts, setFilteredProducts] = useState(aiProducts);
@@ -32,7 +34,11 @@ const Index = () => {
   }, [searchTerm, selectedCategory]);
 
   const handleSearch = (term: string) => {
-    setSearchTerm(term);
+    if (term) {
+      navigate(`/search?q=${term}`);
+    } else {
+      setSearchTerm('');
+    }
   };
 
   const handleCategorySelect = (category: string) => {

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 
@@ -16,9 +17,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
     <header className="w-full bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-10">
       <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between">
         <div className="flex items-center mb-4 md:mb-0">
-          <h1 className="text-2xl font-bold text-ai-dark">
+          <Link to="/" className="text-2xl font-bold text-ai-dark">
             <span className="text-ai-purple">AI</span>Directory
-          </h1>
+          </Link>
         </div>
 
         <div className="w-full md:w-1/3 relative">
@@ -34,10 +35,10 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
         </div>
 
         <nav className="hidden md:flex items-center space-x-6">
-          <a href="#" className="text-gray-600 hover:text-ai-purple transition-colors">Home</a>
+          <Link to="/" className="text-gray-600 hover:text-ai-purple transition-colors">Home</Link>
+          <Link to="/search" className="text-gray-600 hover:text-ai-purple transition-colors">Search</Link>
           <a href="#" className="text-gray-600 hover:text-ai-purple transition-colors">Categories</a>
           <a href="#" className="text-gray-600 hover:text-ai-purple transition-colors">New Products</a>
-          <a href="#" className="text-gray-600 hover:text-ai-purple transition-colors">About</a>
         </nav>
       </div>
     </header>
