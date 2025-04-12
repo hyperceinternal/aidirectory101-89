@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AIProduct } from '@/types/product';
@@ -63,7 +62,7 @@ const AIToolDetails = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header onSearch={(term) => navigate(`/search?q=${term}`)} />
-        <div className="animate-pulse h-80 bg-primary/10 mt-16"></div>
+        <div className="animate-pulse h-80 bg-primary/10 mt-16 pt-12"></div>
         <main className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -138,7 +137,7 @@ const AIToolDetails = () => {
       
       <ProductHero product={product} />
       
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Tabs defaultValue="overview" className="w-full">

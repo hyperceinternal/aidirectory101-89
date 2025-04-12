@@ -13,7 +13,8 @@ interface ProductHeroProps {
 const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
   return (
     <div className="relative bg-gradient-to-b from-primary/10 to-white">
-      <div className="container mx-auto px-4 py-12">
+      {/* Add padding-top to prevent overlap with the header */}
+      <div className="container mx-auto px-4 py-12 pt-28">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block p-3 bg-white rounded-2xl shadow-sm mb-6">
             <img
@@ -59,7 +60,8 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4">
+          {/* Add z-index to ensure buttons are above the wave */}
+          <div className="flex flex-wrap justify-center gap-4 relative z-10">
             <Button size="lg" asChild>
               <a href={product.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                 Try {product.name} <ArrowRight className="h-4 w-4" />
@@ -72,8 +74,8 @@ const ProductHero: React.FC<ProductHeroProps> = ({ product }) => {
         </div>
       </div>
 
-      {/* Wave Divider */}
-      <div className="absolute bottom-0 left-0 right-0">
+      {/* Wave Divider - with lower z-index */}
+      <div className="absolute bottom-0 left-0 right-0 z-0">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 100" className="w-full h-auto">
           <path
             fill="#ffffff"
