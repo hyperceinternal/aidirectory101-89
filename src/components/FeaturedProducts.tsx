@@ -1,22 +1,42 @@
+
 import React, { useState } from 'react';
 import { Star, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { AIProduct } from '@/data/products';
+import { AIProduct } from '@/types/product';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 interface FeaturedProductsProps {
   products: AIProduct[];
+  isLoading?: boolean;
 }
 
-const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
-  const limitedProducts = products.slice(0, 5);
-  
+const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products, isLoading = false }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   
-  if (limitedProducts.length === 0) return null;
+  if (isLoading) {
+    return (
+      <section className="mb-16 animate-fade-in">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-5 w-5 text-yellow-500" />
+                <h2 className="text-sm font-medium text-yellow-500 uppercase tracking-wider">Featured</h2>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold">Top AI Solutions</h1>
+            </div>
+          </div>
+          <div className="bg-gray-100 h-96 animate-pulse rounded-lg"></div>
+        </div>
+      </section>
+    );
+  }
   
+  if (products.length === 0) return null;
+  
+  const limitedProducts = products.slice(0, 5);
   const activeTool = limitedProducts[activeIndex];
   
   const getColorClass = (category: string) => {
@@ -131,7 +151,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
                       <div className="flex items-center bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
                         <Star className="h-4 w-4 text-yellow-300 fill-yellow-300 mr-1" />
                         <span className="font-medium">{activeTool.rating.toFixed(1)}</span>
-                        <span className="text-xs opacity-80 ml-1">({activeTool.id.length * 123})</span>
+                        <span className="text-xs opacity-80 ml-1">({activeTool.reviewCount || 0})</span>
                       </div>
                     </div>
 
@@ -174,7 +194,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products }) => {
               <div className="bg-white p-4 grid grid-cols-3 divide-x divide-gray-100">
                 <div className="px-4 py-2 text-center">
                   <p className="text-sm text-gray-500">Users</p>
-                  <p className="font-bold text-xl">100K+</p>
+                  <p className="font-bold text-xl">{activeTool.userCount ? `${activeTool.userCount}+` : '100K+'}</p>
                 </div>
                 <div className="px-4 py-2 text-center">
                   <p className="text-sm text-gray-500">Use Cases</p>

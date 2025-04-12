@@ -10,5 +10,13 @@ export interface AIProduct {
   rating: number;
   featured?: boolean;
   pricingModel: string;
-  reviewCount?: number; // Changed from reviews to reviewCount
+  reviewCount?: number;
+  foundedYear?: number;
+  userCount?: number;
+  useCases?: UseCase[];
+}
+
+export interface UseCase {
+  title: string;
+  description: string;
 }

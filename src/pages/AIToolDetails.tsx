@@ -1,63 +1,40 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { aiProducts } from '@/data/products';
-import type { AIProduct } from '@/types/product';
 import ProductHeader from '@/components/ProductHeader';
 import ProductHero from '@/components/ProductHero';
 import ProductInfoCard from '@/components/ProductInfoCard';
 import ProductSidebar from '@/components/ProductSidebar';
 import Footer from '@/components/Footer';
-
-// Define mock data for the sections that aren't in our AIProduct type
-interface UseCase {
-  title: string;
-  description: string;
-}
+import { fetchToolById } from '@/services/aiToolsService';
+import { AIProduct } from '@/types/product';
 
 const AIToolDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
-  const [product, setProduct] = useState<AIProduct | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   
-  // Mock data for sections not in our AIProduct type
-  const [useCases, setUseCases] = useState<UseCase[]>([]);
+  const { 
+    data: product, 
+    isLoading, 
+    error 
+  } = useQuery({
+    queryKey: ['aiTool', id],
+    queryFn: () => fetchToolById(id || ''),
+    enabled: !!id
+  });
 
+  // Check if favorite
   useEffect(() => {
-    const fetchProductDetails = () => {
-      setIsLoading(true);
-      
-      // Find product by ID
-      const foundProduct = aiProducts.find(p => p.id === id);
-      
-      // Simulate network delay
-      setTimeout(() => {
-        if (foundProduct) {
-          setProduct(foundProduct);
-          
-          // Set mock data
-          setUseCases([
-            { title: "Content creation for blogs and social media", description: "Generate high-quality content quickly" },
-            { title: "Academic research and paper writing", description: "Help with research and summarization" },
-            { title: "Email drafting and communication", description: "Automate responses to common questions" },
-            { title: "Creative writing and storytelling", description: "Get inspiration and content ideas" },
-            { title: "Business documentation and reports", description: "Extract insights from large datasets" },
-          ]);
-          
-          // Check if favorite
-          const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-          setIsFavorite(favorites.includes(foundProduct.id));
-        }
-        setIsLoading(false);
-      }, 800);
-    };
-    
-    fetchProductDetails();
-  }, [id]);
+    if (product) {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      setIsFavorite(favorites.includes(product.id));
+    }
+  }, [product]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href)
@@ -117,7 +94,7 @@ const AIToolDetails = () => {
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
@@ -126,10 +103,6 @@ const AIToolDetails = () => {
       </div>
     );
   }
-
-  const foundedYear = 2021;
-  const currentYear = new Date().getFullYear();
-  const yearsInIndustry = currentYear - foundedYear;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -150,11 +123,11 @@ const AIToolDetails = () => {
                 <p className="text-gray-700 leading-relaxed">
                   {product.description}
                 </p>
-                {useCases.length > 0 && (
+                {product.useCases && product.useCases.length > 0 && (
                   <div className="mt-8">
                     <h3 className="text-lg font-medium mb-4">Key Use Cases</h3>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {useCases.map((useCase, index) => (
+                      {product.useCases.map((useCase, index) => (
                         <li key={index} className="flex items-start">
                           <div className="mr-2 mt-1 bg-primary/10 rounded-full p-1">
                             <Check className="h-4 w-4 text-primary" />
@@ -173,7 +146,7 @@ const AIToolDetails = () => {
               <ProductInfoCard 
                 rating={product.rating} 
                 reviewCount={product.reviewCount || 0} 
-                foundedYear={foundedYear} 
+                foundedYear={product.foundedYear || 2021} 
               />
             </div>
           </div>

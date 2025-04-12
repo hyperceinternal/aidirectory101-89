@@ -9,7 +9,118 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      ai_tool_tags: {
+        Row: {
+          ai_tool_id: string
+          id: string
+          tag: string
+        }
+        Insert: {
+          ai_tool_id: string
+          id?: string
+          tag: string
+        }
+        Update: {
+          ai_tool_id?: string
+          id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tool_tags_ai_tool_id_fkey"
+            columns: ["ai_tool_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tool_use_cases: {
+        Row: {
+          ai_tool_id: string
+          description: string
+          id: string
+          title: string
+        }
+        Insert: {
+          ai_tool_id: string
+          description: string
+          id?: string
+          title: string
+        }
+        Update: {
+          ai_tool_id?: string
+          description?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tool_use_cases_ai_tool_id_fkey"
+            columns: ["ai_tool_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tools: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          featured: boolean | null
+          founded_year: number | null
+          id: string
+          image_url: string
+          logo_url: string | null
+          name: string
+          pricing_model: string
+          rating: number | null
+          review_count: number | null
+          short_description: string | null
+          updated_at: string | null
+          url: string
+          user_count: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          featured?: boolean | null
+          founded_year?: number | null
+          id?: string
+          image_url: string
+          logo_url?: string | null
+          name: string
+          pricing_model: string
+          rating?: number | null
+          review_count?: number | null
+          short_description?: string | null
+          updated_at?: string | null
+          url: string
+          user_count?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          featured?: boolean | null
+          founded_year?: number | null
+          id?: string
+          image_url?: string
+          logo_url?: string | null
+          name?: string
+          pricing_model?: string
+          rating?: number | null
+          review_count?: number | null
+          short_description?: string | null
+          updated_at?: string | null
+          url?: string
+          user_count?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

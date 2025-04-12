@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Search as SearchIcon, Filter, X } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -9,7 +10,7 @@ import CategoryFilter from '@/components/CategoryFilter';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { aiProducts, getCategories, filterProducts } from '@/data/products';
+import { getCategories, filterProducts } from '@/services/aiToolsService';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,31 +20,19 @@ const Search = () => {
   
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [filteredProducts, setFilteredProducts] = useState(aiProducts);
-  const [isLoading, setIsLoading] = useState(true);
   
-  const categories = getCategories();
-
-  // Update search results when params change
-  useEffect(() => {
-    setIsLoading(true);
-    
-    // Update state from URL params
-    const queryParam = searchParams.get('q') || '';
-    const categoryParam = searchParams.get('category') || '';
-    
-    setSearchTerm(queryParam);
-    setSelectedCategory(categoryParam);
-    
-    // Filter products based on search term and category
-    const filtered = filterProducts(categoryParam, queryParam);
-    
-    // Simulate loading delay
-    setTimeout(() => {
-      setFilteredProducts(filtered);
-      setIsLoading(false);
-    }, 500);
-  }, [searchParams]);
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories
+  });
+  
+  // Fetch filtered products
+  const { data: filteredProducts = [], isLoading } = useQuery({
+    queryKey: ['searchProducts', initialQuery, initialCategory],
+    queryFn: () => filterProducts(initialCategory, initialQuery),
+    enabled: initialQuery !== '' || initialCategory !== ''
+  });
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,7 +143,7 @@ const Search = () => {
             <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 mb-6">
               <div className="flex flex-wrap items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  Results {searchTerm && <span>for "{searchTerm}"</span>}
+                  Results {initialQuery && <span>for "{initialQuery}"</span>}
                 </h2>
                 <span className="text-gray-500 text-sm">
                   Found {filteredProducts.length} tools

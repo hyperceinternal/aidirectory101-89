@@ -1,38 +1,52 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Header from '@/components/Header';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import CategoryFilter from '@/components/CategoryFilter';
 import ProductGrid from '@/components/ProductGrid';
 import ProductCTA from '@/components/ProductCTA';
 import Footer from '@/components/Footer';
-import { aiProducts, getCategories, getFeaturedProducts, filterProducts } from '@/data/products';
+import { fetchAllTools, fetchFeaturedTools, getCategories, filterProducts } from '@/services/aiToolsService';
 
 const Index = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [filteredProducts, setFilteredProducts] = useState(aiProducts);
-  const [isLoading, setIsLoading] = useState(true);
   
-  const categories = getCategories();
-  const featuredProducts = getFeaturedProducts();
+  // Fetch all products
+  const { data: allProducts = [], isLoading: isLoadingAll } = useQuery({
+    queryKey: ['allProducts'],
+    queryFn: fetchAllTools
+  });
+  
+  // Fetch featured products
+  const { data: featuredProducts = [], isLoading: isLoadingFeatured } = useQuery({
+    queryKey: ['featuredProducts'],
+    queryFn: fetchFeaturedTools
+  });
+  
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories
+  });
+  
+  // Filter products based on search term and category
+  const { data: filteredProducts = [], isLoading: isLoadingFiltered } = useQuery({
+    queryKey: ['filteredProducts', selectedCategory, searchTerm],
+    queryFn: () => filterProducts(selectedCategory, searchTerm),
+    enabled: selectedCategory !== '' || searchTerm !== ''
+  });
 
-  useEffect(() => {
-    // Simulate loading delay
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    // Filter products based on search term and category
-    const filtered = filterProducts(selectedCategory, searchTerm);
-    setFilteredProducts(filtered);
-  }, [searchTerm, selectedCategory]);
+  // Determine which products to display
+  const displayProducts = (selectedCategory !== '' || searchTerm !== '') 
+    ? filteredProducts 
+    : allProducts;
+  
+  // Determine loading state
+  const isLoading = isLoadingAll || (isLoadingFiltered && (selectedCategory !== '' || searchTerm !== ''));
 
   const handleSearch = (term: string) => {
     if (term) {
@@ -61,7 +75,7 @@ const Index = () => {
             </p>
           </div>
           
-          <FeaturedProducts products={featuredProducts} />
+          <FeaturedProducts products={featuredProducts} isLoading={isLoadingFeatured} />
           
           <CategoryFilter 
             categories={categories} 
@@ -72,11 +86,11 @@ const Index = () => {
           <div className="mb-6 flex justify-between items-center">
             <h2 className="text-2xl font-bold">All AI Products</h2>
             <p className="text-gray-500">
-              Showing {filteredProducts.length} of {aiProducts.length} products
+              Showing {displayProducts.length} of {allProducts.length} products
             </p>
           </div>
           
-          <ProductGrid products={filteredProducts} isLoading={isLoading} />
+          <ProductGrid products={displayProducts} isLoading={isLoading} />
         </section>
       </main>
       
