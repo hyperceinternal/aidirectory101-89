@@ -13,9 +13,8 @@ interface ProductSidebarProps {
 
 const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories, onShare }) => {
   return (
-    <div className="space-y-6">
-      {/* Set a fixed height for the container and make it sticky */}
-      <div className="sticky top-24">
+    <div className="sticky top-24 h-fit">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
@@ -42,41 +41,41 @@ const ProductSidebar: React.FC<ProductSidebarProps> = ({ websiteUrl, categories,
             </Button>
           </CardContent>
         </Card>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Related Categories</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {[...categories, "AI Tools", "Productivity Tools", "Content Creation"].map((category, index) => (
-              <Badge key={index} variant="outline" className="cursor-pointer hover:bg-gray-100">
-                {category}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recently Added Tools</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {["AI Image Generator", "Code Assistant", "Voice Transcription"].map((name, index) => (
-            <div key={index} className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center">
-                <span className="text-xs font-medium">{name.charAt(0)}</span>
-              </div>
-              <span>{name}</span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Related Categories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {[...categories, "AI Tools", "Productivity Tools", "Content Creation"].map((category, index) => (
+                <Badge key={index} variant="outline" className="cursor-pointer hover:bg-gray-100">
+                  {category}
+                </Badge>
+              ))}
             </div>
-          ))}
-          <Button variant="link" className="w-full p-0">
-            View All New Tools
-          </Button>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recently Added Tools</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {["AI Image Generator", "Code Assistant", "Voice Transcription"].map((name, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center">
+                  <span className="text-xs font-medium">{name.charAt(0)}</span>
+                </div>
+                <span>{name}</span>
+              </div>
+            ))}
+            <Button variant="link" className="w-full p-0">
+              View All New Tools
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
