@@ -259,6 +259,23 @@ export const deleteTool = async (id: string): Promise<void> => {
   }
 };
 
+// Fetch all categories for dropdown
+export const fetchCategories = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from('ai_tools')
+    .select('category')
+    .order('category');
+
+  if (error) {
+    console.error("Error fetching categories:", error);
+    throw error;
+  }
+
+  // Extract unique categories
+  const uniqueCategories = Array.from(new Set(data.map(item => item.category)));
+  return uniqueCategories;
+};
+
 // Create a tag
 export const createTag = async (toolId: string, tag: string): Promise<void> => {
   const { error } = await supabase

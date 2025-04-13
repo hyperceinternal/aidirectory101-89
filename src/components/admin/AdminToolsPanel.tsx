@@ -7,7 +7,8 @@ import {
   updateTool, 
   deleteTool,
   createTag,
-  createUseCase
+  createUseCase,
+  fetchCategories
 } from '@/services/adminService';
 import { AIProduct, UseCase } from '@/types/product';
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const AdminToolsPanel = () => {
   const { toast } = useToast();
@@ -49,6 +58,8 @@ const AdminToolsPanel = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [newUseCase, setNewUseCase] = useState<Partial<UseCase>>({ title: '', description: '' });
   const [useCases, setUseCases] = useState<UseCase[]>([]);
+  const [newCategory, setNewCategory] = useState('');
+  const [isNewCategory, setIsNewCategory] = useState(false);
   
   // Fetch all tools
   const { data: tools, isLoading } = useQuery({
@@ -56,11 +67,18 @@ const AdminToolsPanel = () => {
     queryFn: fetchAllTools
   });
   
+  // Fetch categories for dropdown
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: ['admin', 'categories'],
+    queryFn: fetchCategories
+  });
+  
   // Create tool mutation
   const createToolMutation = useMutation({
     mutationFn: createTool,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'tools'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
       toast({
         title: "Success",
         description: "Tool created successfully",
@@ -81,6 +99,7 @@ const AdminToolsPanel = () => {
     mutationFn: updateTool,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'tools'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
       toast({
         title: "Success",
         description: "Tool updated successfully",
@@ -101,6 +120,7 @@ const AdminToolsPanel = () => {
     mutationFn: deleteTool,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'tools'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
       toast({
         title: "Success",
         description: "Tool deleted successfully",
@@ -122,6 +142,8 @@ const AdminToolsPanel = () => {
     setIsAddDialogOpen(false);
     setTags([]);
     setUseCases([]);
+    setNewCategory('');
+    setIsNewCategory(false);
   };
   
   // Edit tool
@@ -166,6 +188,20 @@ const AdminToolsPanel = () => {
       return;
     }
     
+    // Set category based on selection
+    if (isNewCategory && newCategory) {
+      currentTool.category = newCategory;
+    }
+    
+    if (!currentTool.category) {
+      toast({
+        title: "Validation Error",
+        description: "Category is required",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
       const toolData = {
         ...currentTool,
@@ -180,6 +216,17 @@ const AdminToolsPanel = () => {
       }
     } catch (error) {
       console.error('Error submitting form:', error);
+    }
+  };
+  
+  // Handle category change
+  const handleCategoryChange = (value: string) => {
+    if (value === "new") {
+      setIsNewCategory(true);
+      setCurrentTool({...currentTool, category: ''});
+    } else {
+      setIsNewCategory(false);
+      setCurrentTool({...currentTool, category: value});
     }
   };
   
@@ -322,12 +369,42 @@ const AdminToolsPanel = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
-                <Input 
-                  id="category" 
-                  value={currentTool?.category || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, category: e.target.value})}
+                <Select 
+                  value={isNewCategory ? "new" : currentTool?.category || ''}
+                  onValueChange={handleCategoryChange}
                   required
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {categoriesLoading ? (
+                        <SelectItem value="loading">Loading categories...</SelectItem>
+                      ) : (
+                        <>
+                          {categories && categories.map((category, index) => (
+                            <SelectItem key={index} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="new">+ Add new category</SelectItem>
+                        </>
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                
+                {isNewCategory && (
+                  <div className="mt-2">
+                    <Input 
+                      placeholder="Enter new category name"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">
