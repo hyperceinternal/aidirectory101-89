@@ -10,11 +10,11 @@ import ProductHero from '@/components/ProductHero';
 import ProductInfoCard from '@/components/ProductInfoCard';
 import ProductSidebar from '@/components/ProductSidebar';
 import Footer from '@/components/Footer';
-import { fetchToolById } from '@/services/aiToolsService';
+import { fetchToolBySlug } from '@/services/aiToolsService';
 import { AIProduct } from '@/types/product';
 
 const AIToolDetails = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id: slug } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [isFavorite, setIsFavorite] = useState(false);
   
@@ -23,9 +23,9 @@ const AIToolDetails = () => {
     isLoading, 
     error 
   } = useQuery({
-    queryKey: ['aiTool', id],
-    queryFn: () => fetchToolById(id || ''),
-    enabled: !!id
+    queryKey: ['aiTool', slug],
+    queryFn: () => fetchToolBySlug(slug || ''),
+    enabled: !!slug
   });
 
   // Check if favorite

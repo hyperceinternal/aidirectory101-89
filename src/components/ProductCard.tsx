@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ExternalLink } from 'lucide-react';
@@ -10,8 +11,8 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  // Use slug if available, otherwise fall back to ID
-  const toolPath = product.slug ? product.slug : product.id;
+  // Use slug for the URL
+  const toolPath = product.slug || product.id;
   
   return (
     <Link to={`/tool/${toolPath}`} className="block h-full">
