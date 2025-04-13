@@ -53,6 +53,7 @@ export const fetchAllTools = async (): Promise<AIProduct[]> => {
       category: tool.category,
       url: tool.url,
       image: tool.image_url,
+      logoUrl: tool.logo_url,
       tags: toolTags,
       rating: tool.rating || 0,
       featured: tool.featured || false,
@@ -68,6 +69,50 @@ export const fetchAllTools = async (): Promise<AIProduct[]> => {
 
 // Create a new tool
 export const createTool = async (tool: AIProduct): Promise<AIProduct> => {
+  // Upload image to storage if provided as File
+  let imageUrl = tool.image;
+  
+  if (tool.imageFile && typeof tool.imageFile !== 'string') {
+    const filename = `${Date.now()}-${tool.imageFile.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('tool_images')
+      .upload(filename, tool.imageFile);
+
+    if (uploadError) {
+      console.error("Error uploading image:", uploadError);
+      throw uploadError;
+    }
+
+    // Get public URL for the uploaded image
+    const { data: urlData } = supabase.storage
+      .from('tool_images')
+      .getPublicUrl(filename);
+      
+    imageUrl = urlData.publicUrl;
+  }
+  
+  // Upload logo to storage if provided as File
+  let logoUrl = tool.logoUrl;
+  
+  if (tool.logoFile && typeof tool.logoFile !== 'string') {
+    const filename = `logo-${Date.now()}-${tool.logoFile.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('tool_images')
+      .upload(filename, tool.logoFile);
+
+    if (uploadError) {
+      console.error("Error uploading logo:", uploadError);
+      throw uploadError;
+    }
+
+    // Get public URL for the uploaded logo
+    const { data: urlData } = supabase.storage
+      .from('tool_images')
+      .getPublicUrl(filename);
+      
+    logoUrl = urlData.publicUrl;
+  }
+
   const { data, error } = await supabase
     .from('ai_tools')
     .insert({
@@ -76,7 +121,8 @@ export const createTool = async (tool: AIProduct): Promise<AIProduct> => {
       short_description: tool.shortDescription,
       category: tool.category,
       url: tool.url,
-      image_url: tool.image,
+      image_url: imageUrl,
+      logo_url: logoUrl,
       rating: tool.rating || 0,
       featured: tool.featured || false,
       pricing_model: tool.pricingModel,
@@ -130,12 +176,58 @@ export const createTool = async (tool: AIProduct): Promise<AIProduct> => {
 
   return {
     ...tool,
-    id: newToolId
+    id: newToolId,
+    image: imageUrl,
+    logoUrl: logoUrl
   };
 };
 
 // Update an existing tool
 export const updateTool = async (tool: AIProduct): Promise<AIProduct> => {
+  // Upload image to storage if provided as File
+  let imageUrl = tool.image;
+  
+  if (tool.imageFile && typeof tool.imageFile !== 'string') {
+    const filename = `${Date.now()}-${tool.imageFile.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('tool_images')
+      .upload(filename, tool.imageFile);
+
+    if (uploadError) {
+      console.error("Error uploading image:", uploadError);
+      throw uploadError;
+    }
+
+    // Get public URL for the uploaded image
+    const { data: urlData } = supabase.storage
+      .from('tool_images')
+      .getPublicUrl(filename);
+      
+    imageUrl = urlData.publicUrl;
+  }
+  
+  // Upload logo to storage if provided as File
+  let logoUrl = tool.logoUrl;
+  
+  if (tool.logoFile && typeof tool.logoFile !== 'string') {
+    const filename = `logo-${Date.now()}-${tool.logoFile.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('tool_images')
+      .upload(filename, tool.logoFile);
+
+    if (uploadError) {
+      console.error("Error uploading logo:", uploadError);
+      throw uploadError;
+    }
+
+    // Get public URL for the uploaded logo
+    const { data: urlData } = supabase.storage
+      .from('tool_images')
+      .getPublicUrl(filename);
+      
+    logoUrl = urlData.publicUrl;
+  }
+
   const { error } = await supabase
     .from('ai_tools')
     .update({
@@ -144,7 +236,8 @@ export const updateTool = async (tool: AIProduct): Promise<AIProduct> => {
       short_description: tool.shortDescription,
       category: tool.category,
       url: tool.url,
-      image_url: tool.image,
+      image_url: imageUrl,
+      logo_url: logoUrl,
       rating: tool.rating,
       featured: tool.featured,
       pricing_model: tool.pricingModel,
@@ -213,7 +306,11 @@ export const updateTool = async (tool: AIProduct): Promise<AIProduct> => {
     }
   }
 
-  return tool;
+  return {
+    ...tool,
+    image: imageUrl,
+    logoUrl: logoUrl
+  };
 };
 
 // Delete a tool

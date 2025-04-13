@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { AIProduct } from "@/types/product";
 
+// Fetch all tools for admin
 export const fetchAllTools = async (): Promise<AIProduct[]> => {
   const { data: tools, error } = await supabase
     .from('ai_tools')
@@ -21,11 +22,28 @@ export const fetchAllTools = async (): Promise<AIProduct[]> => {
     throw tagsError;
   }
 
+  // Fetch use cases for all tools
+  const { data: useCasesData, error: useCasesError } = await supabase
+    .from('ai_tool_use_cases')
+    .select('*');
+
+  if (useCasesError) {
+    console.error("Error fetching use cases:", useCasesError);
+    throw useCasesError;
+  }
+
   // Transform to expected format
   return tools.map((tool): AIProduct => {
     const toolTags = tagsData
       .filter(tag => tag.ai_tool_id === tool.id)
       .map(tag => tag.tag);
+
+    const toolUseCases = useCasesData
+      .filter(useCase => useCase.ai_tool_id === tool.id)
+      .map(useCase => ({
+        title: useCase.title,
+        description: useCase.description
+      }));
 
     return {
       id: tool.id,
@@ -35,14 +53,16 @@ export const fetchAllTools = async (): Promise<AIProduct[]> => {
       category: tool.category,
       url: tool.url,
       image: tool.image_url,
+      logoUrl: tool.logo_url,
       tags: toolTags,
-      rating: tool.rating,
-      featured: tool.featured,
+      rating: tool.rating || 0,
+      featured: tool.featured || false,
       pricingModel: tool.pricing_model,
       reviewCount: tool.review_count || 0,
       foundedYear: tool.founded_year,
       userCount: tool.user_count,
-      slug: tool.slug
+      slug: tool.slug,
+      useCases: toolUseCases
     };
   });
 };
@@ -84,6 +104,7 @@ export const fetchFeaturedTools = async (): Promise<AIProduct[]> => {
       category: tool.category,
       url: tool.url,
       image: tool.image_url,
+      logoUrl: tool.logo_url,
       tags: toolTags,
       rating: tool.rating,
       featured: tool.featured,
@@ -158,6 +179,7 @@ export const fetchToolById = async (idOrSlug: string): Promise<AIProduct | null>
     category: tool.category,
     url: tool.url,
     image: tool.image_url,
+    logoUrl: tool.logo_url,
     tags: tagsData.map(tag => tag.tag),
     rating: tool.rating,
     featured: tool.featured,
@@ -278,17 +300,20 @@ export const filterProducts = async (category: string = "", searchTerm: string =
       category: tool.category,
       url: tool.url,
       image: tool.image_url,
+      logoUrl: tool.logo_url,
       tags: toolTags,
       rating: tool.rating,
       featured: tool.featured,
       pricingModel: tool.pricing_model,
       reviewCount: tool.review_count || 0,
       foundedYear: tool.founded_year,
-      userCount: tool.user_count
+      userCount: tool.user_count,
+      slug: tool.slug
     };
   });
 };
 
+// Update fetch recently added tools to use image_url correctly
 export const fetchRecentlyAddedTools = async (limit: number = 3): Promise<AIProduct[]> => {
   const { data: tools, error } = await supabase
     .from('ai_tools')
@@ -332,6 +357,7 @@ export const fetchRecentlyAddedTools = async (limit: number = 3): Promise<AIProd
       category: tool.category,
       url: tool.url,
       image: tool.image_url,
+      logoUrl: tool.logo_url,
       tags: toolTags,
       rating: tool.rating,
       featured: tool.featured,
@@ -391,6 +417,7 @@ export const fetchToolBySlug = async (slug: string): Promise<AIProduct | null> =
     category: tool.category,
     url: tool.url,
     image: tool.image_url,
+    logoUrl: tool.logo_url,
     tags: tagsData.map(tag => tag.tag),
     rating: tool.rating,
     featured: tool.featured,

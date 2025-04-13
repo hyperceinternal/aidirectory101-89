@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Pencil, Plus, Trash2, X, Upload } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -60,6 +60,10 @@ const AdminToolsPanel = () => {
   const [useCases, setUseCases] = useState<UseCase[]>([]);
   const [newCategory, setNewCategory] = useState('');
   const [isNewCategory, setIsNewCategory] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [logoPreview, setLogoPreview] = useState<string>('');
   
   // Fetch all tools
   const { data: tools, isLoading } = useQuery({
@@ -144,6 +148,10 @@ const AdminToolsPanel = () => {
     setUseCases([]);
     setNewCategory('');
     setIsNewCategory(false);
+    setImageFile(null);
+    setLogoFile(null);
+    setImagePreview('');
+    setLogoPreview('');
   };
   
   // Edit tool
@@ -153,6 +161,8 @@ const AdminToolsPanel = () => {
     setUseCases(tool.useCases || []);
     setIsEditing(true);
     setIsAddDialogOpen(true);
+    setImagePreview(tool.image || '');
+    setLogoPreview(tool.logoUrl || '');
   };
   
   // Add new tool
@@ -164,6 +174,7 @@ const AdminToolsPanel = () => {
       category: '',
       url: '',
       image: '',
+      logoUrl: '',
       tags: [],
       rating: 0,
       pricingModel: 'Free',
@@ -173,6 +184,26 @@ const AdminToolsPanel = () => {
     setUseCases([]);
     setIsEditing(false);
     setIsAddDialogOpen(true);
+    setImagePreview('');
+    setLogoPreview('');
+  };
+  
+  // Handle image upload
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+  
+  // Handle logo upload
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    }
   };
   
   // Handle form submit
@@ -206,8 +237,10 @@ const AdminToolsPanel = () => {
       const toolData = {
         ...currentTool,
         tags,
-        useCases
-      } as AIProduct;
+        useCases,
+        imageFile: imageFile || currentTool.image,
+        logoFile: logoFile || currentTool.logoUrl
+      } as AIProduct & { imageFile?: File | string; logoFile?: File | string };
       
       if (isEditing && currentTool.id) {
         await updateToolMutation.mutateAsync(toolData);
@@ -419,14 +452,15 @@ const AdminToolsPanel = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="image">Image URL *</Label>
+                <Label htmlFor="slug">Slug (URL friendly name) *</Label>
                 <Input 
-                  id="image" 
-                  type="url"
-                  value={currentTool?.image || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, image: e.target.value})}
+                  id="slug" 
+                  value={currentTool?.slug || ''} 
+                  onChange={(e) => setCurrentTool({...currentTool, slug: e.target.value})}
+                  placeholder="e.g. tool-name"
                   required
                 />
+                <p className="text-xs text-gray-500">This will be used in the URL: /tool/your-slug</p>
               </div>
               
               <div className="space-y-2">
@@ -448,16 +482,6 @@ const AdminToolsPanel = () => {
                   id="pricingModel" 
                   value={currentTool?.pricingModel || ''} 
                   onChange={(e) => setCurrentTool({...currentTool, pricingModel: e.target.value})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="slug">Slug (URL friendly name)</Label>
-                <Input 
-                  id="slug" 
-                  value={currentTool?.slug || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, slug: e.target.value})}
-                  placeholder="e.g. tool-name"
                 />
               </div>
               
@@ -500,6 +524,72 @@ const AdminToolsPanel = () => {
                   }
                 />
                 <Label htmlFor="featured">Featured Tool</Label>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="imageUpload">Tool Image *</Label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <Label 
+                      htmlFor="imageUpload"
+                      className="border-2 border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                    >
+                      {imagePreview ? (
+                        <img 
+                          src={imagePreview} 
+                          alt="Image Preview" 
+                          className="max-h-24 object-contain mb-2" 
+                        />
+                      ) : (
+                        <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                      )}
+                      <span className="text-sm text-gray-500">
+                        {imagePreview ? "Change image" : "Upload image"}
+                      </span>
+                    </Label>
+                    <Input 
+                      id="imageUpload" 
+                      type="file"
+                      className="hidden"
+                      onChange={handleImageChange}
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="logoUpload">Tool Logo</Label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <Label 
+                      htmlFor="logoUpload"
+                      className="border-2 border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                    >
+                      {logoPreview ? (
+                        <img 
+                          src={logoPreview} 
+                          alt="Logo Preview" 
+                          className="max-h-24 object-contain mb-2" 
+                        />
+                      ) : (
+                        <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                      )}
+                      <span className="text-sm text-gray-500">
+                        {logoPreview ? "Change logo" : "Upload logo"}
+                      </span>
+                    </Label>
+                    <Input 
+                      id="logoUpload" 
+                      type="file"
+                      className="hidden"
+                      onChange={handleLogoChange}
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             

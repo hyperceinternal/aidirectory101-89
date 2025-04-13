@@ -89,7 +89,7 @@ const ProductSidebar: React.FC<ProductSidebarProps> = ({
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {[...categories, "AI Tools", "Productivity Tools", "Content Creation"].map((category, index) => (
+              {categories.map((category, index) => (
                 <Badge key={index} variant="outline" className="cursor-pointer hover:bg-gray-100">
                   {category}
                 </Badge>

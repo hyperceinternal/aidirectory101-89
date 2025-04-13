@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,7 +11,8 @@ import {
   PlusCircle,
   X,
   Send,
-  Mail
+  Mail,
+  Upload
 } from 'lucide-react';
 
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -30,7 +31,6 @@ const formSchema = z.object({
   description: z.string().min(10, { message: "Description must be at least 10 characters" }),
   category: z.string().min(1, { message: "Please select a category" }),
   url: z.string().url({ message: "Please enter a valid URL" }),
-  imageUrl: z.string().url({ message: "Please enter a valid image URL" }).optional(),
   tags: z.array(z.string()).optional(),
   pricingModel: z.string().min(1, { message: "Please select a pricing model" }),
   email: z.string().email({ message: "Please enter a valid email address" }).optional(),
@@ -44,8 +44,11 @@ interface SubmitToolFormProps {
 }
 
 const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
-  const [tagInput, setTagInput] = React.useState('');
-  const [tags, setTags] = React.useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch categories from the database
   const { data: categories, isLoading: categoriesLoading } = useQuery({
@@ -60,13 +63,21 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
       description: '',
       category: '',
       url: '',
-      imageUrl: '',
       tags: [],
       pricingModel: '',
       email: '',
       termsAgreed: false,
     },
   });
+
+  // Handle image upload
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
   const addTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -85,6 +96,36 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      setIsUploading(true);
+      
+      // Upload image to Supabase Storage if provided
+      let imageUrl = '';
+      if (imageFile) {
+        const filename = `${Date.now()}-${imageFile.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('tool_images')
+          .upload(filename, imageFile);
+
+        if (uploadError) {
+          console.error("Error uploading image:", uploadError);
+          throw uploadError;
+        }
+
+        // Get public URL for the uploaded image
+        const { data: urlData } = supabase.storage
+          .from('tool_images')
+          .getPublicUrl(filename);
+          
+        imageUrl = urlData.publicUrl;
+      }
+      
+      // Generate a slug from the tool name
+      const slug = data.name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')  // Remove special characters
+        .replace(/\s+/g, '-')      // Replace spaces with hyphens
+        .replace(/-+/g, '-');      // Replace multiple hyphens with single hyphen
+      
       // Insert tool submission into the database
       const { error } = await supabase
         .from('tool_submissions')
@@ -94,18 +135,21 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
           short_description: data.description.substring(0, 150) + (data.description.length > 150 ? '...' : ''),
           category: data.category,
           url: data.url,
-          image_url: data.imageUrl,
+          image_url: imageUrl,
           pricing_model: data.pricingModel,
           tags: data.tags,
-          email: data.email
+          email: data.email,
+          status: 'pending'
         });
 
       if (error) {
         throw error;
       }
       
+      setIsUploading(false);
       onSubmitSuccess();
     } catch (error) {
+      setIsUploading(false);
       console.error('Error submitting tool:', error);
       // Handle error (could show a toast here)
     }
@@ -158,6 +202,36 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
                   </FormItem>
                 )}
               />
+            </div>
+
+            {/* Tool Image */}
+            <div className="space-y-2">
+              <FormLabel htmlFor="imageUpload">Tool Image</FormLabel>
+              <div className="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
+                {imagePreview ? (
+                  <div className="text-center">
+                    <img 
+                      src={imagePreview} 
+                      alt="Image Preview" 
+                      className="max-h-36 mx-auto object-contain mb-4" 
+                    />
+                    <p className="text-sm text-gray-500">Click to change image</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Upload a screenshot or logo</p>
+                    <p className="text-xs text-gray-400 mt-1">PNG, JPG, or GIF (max 5MB)</p>
+                  </div>
+                )}
+                <Input 
+                  id="imageUpload" 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </div>
             </div>
 
             {/* Description */}
@@ -246,27 +320,6 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
                 )}
               />
             </div>
-
-            {/* Image URL */}
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Logo/Image URL</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center space-x-2">
-                      <ImageIcon className="h-4 w-4 text-gray-400" />
-                      <Input placeholder="https://example.com/image.png" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    URL to the tool's logo or a screenshot (optional)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             {/* Contact Email */}
             <FormField
@@ -370,9 +423,15 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
 
             {/* Submit Button */}
             <div className="flex justify-end">
-              <Button type="submit" className="px-6">
-                <Send className="mr-2 h-4 w-4" />
-                Submit Tool
+              <Button type="submit" className="px-6" disabled={isUploading}>
+                {isUploading ? (
+                  <>Uploading...</>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Submit Tool
+                  </>
+                )}
               </Button>
             </div>
           </form>

@@ -5,29 +5,29 @@ import { Layout, Grid, Rows3 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
-import { getCategories, filterProducts } from '@/data/products';
 import ProductGrid from '@/components/ProductGrid';
+import { getCategories, filterProducts } from '@/services/aiToolsService';
+import { useQuery } from '@tanstack/react-query';
 
 const Categories = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
-  const categories = getCategories();
-  const filteredProducts = filterProducts(selectedCategory);
+  // Fetch categories from Supabase
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories
+  });
 
-  useEffect(() => {
-    // Simulate loading delay
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [selectedCategory]);
+  // Fetch filtered products based on selected category
+  const { data: filteredProducts = [], isLoading: productsLoading } = useQuery({
+    queryKey: ['products', selectedCategory],
+    queryFn: () => filterProducts(selectedCategory),
+    enabled: !!selectedCategory
+  });
 
   const handleCategorySelect = (category: string) => {
-    setIsLoading(true);
     setSelectedCategory(category);
   };
 
@@ -74,23 +74,35 @@ const Categories = () => {
 
         {!selectedCategory ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <Card 
-                key={category} 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => handleCategorySelect(category)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-medium">{category}</h3>
-                    <Layout className="text-ai-purple" size={20} />
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {filterProducts(category).length} tools
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            {categoriesLoading ? (
+              // Loading state for categories
+              Array(8).fill(0).map((_, index) => (
+                <Card key={index} className="animate-pulse">
+                  <CardContent className="p-6">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              categories.map((category) => (
+                <Card 
+                  key={category} 
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-medium">{category}</h3>
+                      <Layout className="text-ai-purple" size={20} />
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Browse tools in this category
+                    </p>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         ) : (
           <div>
@@ -103,7 +115,7 @@ const Categories = () => {
             <h2 className="text-2xl font-bold mb-6">{selectedCategory}</h2>
             <ProductGrid 
               products={filteredProducts} 
-              isLoading={isLoading} 
+              isLoading={productsLoading} 
             />
           </div>
         )}
