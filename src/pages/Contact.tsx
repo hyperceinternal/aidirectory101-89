@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -36,6 +37,7 @@ const formSchema = z.object({
 });
 
 const Contact = () => {
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,18 +48,45 @@ const Contact = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you as soon as possible.",
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: values.name,
+          email: values.email,
+          subject: values.subject,
+          message: values.message
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Message sent!",
+        description: "We'll get back to you as soon as possible.",
+      });
+      
+      form.reset();
+      
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
 
   const handleSearch = (term: string) => {
-    // Not implemented for this page yet
-    console.log('Search term:', term);
+    if (term) {
+      navigate(`/search?q=${encodeURIComponent(term)}`);
+    }
   };
 
   return (
@@ -70,7 +99,6 @@ const Contact = () => {
           <p className="text-center text-gray-600 mb-12">We'd love to hear from you. Please get in touch with us.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* Contact Form */}
             <div>
               <div className="bg-white rounded-lg shadow-md p-8">
                 <h2 className="text-2xl font-semibold mb-6">Send a Message</h2>
@@ -146,7 +174,6 @@ const Contact = () => {
               </div>
             </div>
             
-            {/* Contact Information */}
             <div>
               <div className="bg-white rounded-lg shadow-md p-8 mb-8">
                 <h2 className="text-2xl font-semibold mb-6">Contact Information</h2>

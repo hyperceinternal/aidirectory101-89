@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminToolsPanel from '@/components/admin/AdminToolsPanel';
 import AdminSubscribersPanel from '@/components/admin/AdminSubscribersPanel';
+import AdminCategoriesPanel from '@/components/admin/AdminCategoriesPanel';
+import AdminToolSubmissionsPanel from '@/components/admin/AdminToolSubmissionsPanel';
+import AdminContactSubmissionsPanel from '@/components/admin/AdminContactSubmissionsPanel';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -26,8 +29,12 @@ const Admin: React.FC = () => {
     }
   };
   
-  // Empty search handler to satisfy HeaderProps interface
-  const handleSearch = () => {};
+  // Handle search
+  const handleSearch = (term: string) => {
+    if (term) {
+      navigate(`/search?q=${encodeURIComponent(term)}`);
+    }
+  };
   
   if (!isAuthenticated) {
     return (
@@ -82,11 +89,26 @@ const Admin: React.FC = () => {
         <Tabs defaultValue="tools" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="tools">AI Tools</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="submissions">Tool Submissions</TabsTrigger>
+            <TabsTrigger value="contacts">Contact Messages</TabsTrigger>
             <TabsTrigger value="subscribers">Newsletter Subscribers</TabsTrigger>
           </TabsList>
           
           <TabsContent value="tools">
             <AdminToolsPanel />
+          </TabsContent>
+          
+          <TabsContent value="categories">
+            <AdminCategoriesPanel />
+          </TabsContent>
+          
+          <TabsContent value="submissions">
+            <AdminToolSubmissionsPanel />
+          </TabsContent>
+          
+          <TabsContent value="contacts">
+            <AdminContactSubmissionsPanel />
           </TabsContent>
           
           <TabsContent value="subscribers">

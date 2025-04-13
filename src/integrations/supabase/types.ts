@@ -124,6 +124,54 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      contact_submissions: {
+        Row: {
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+          subject: string
+          submitted_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+          subject: string
+          submitted_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+          subject?: string
+          submitted_at?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string
@@ -139,6 +187,51 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+        }
+        Relationships: []
+      }
+      tool_submissions: {
+        Row: {
+          category: string
+          description: string
+          email: string | null
+          id: string
+          image_url: string | null
+          name: string
+          pricing_model: string
+          short_description: string | null
+          status: string
+          submitted_at: string
+          tags: string[] | null
+          url: string
+        }
+        Insert: {
+          category: string
+          description: string
+          email?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          pricing_model: string
+          short_description?: string | null
+          status?: string
+          submitted_at?: string
+          tags?: string[] | null
+          url: string
+        }
+        Update: {
+          category?: string
+          description?: string
+          email?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          pricing_model?: string
+          short_description?: string | null
+          status?: string
+          submitted_at?: string
+          tags?: string[] | null
+          url?: string
         }
         Relationships: []
       }

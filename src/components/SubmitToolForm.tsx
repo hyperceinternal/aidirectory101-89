@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +20,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { fetchCategories } from '@/services/adminService';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Tool name must be at least 2 characters" }),
@@ -28,6 +32,7 @@ const formSchema = z.object({
   imageUrl: z.string().url({ message: "Please enter a valid image URL" }).optional(),
   tags: z.array(z.string()).optional(),
   pricingModel: z.string().min(1, { message: "Please select a pricing model" }),
+  email: z.string().email({ message: "Please enter a valid email address" }).optional(),
   termsAgreed: z.boolean().refine(val => val === true, { message: "You must agree to the terms" })
 });
 
@@ -41,6 +46,12 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
   const [tagInput, setTagInput] = React.useState('');
   const [tags, setTags] = React.useState<string[]>([]);
 
+  // Fetch categories from the database
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories
+  });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,6 +62,7 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
       imageUrl: '',
       tags: [],
       pricingModel: '',
+      email: '',
       termsAgreed: false,
     },
   });
@@ -70,14 +82,32 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
     form.setValue('tags', newTags);
   };
 
-  const onSubmit = (data: FormValues) => {
-    console.log('Form submitted:', data);
-    
-    // In a real application, you would send this data to your backend
-    // For now, we'll just simulate a successful submission
-    setTimeout(() => {
+  const onSubmit = async (data: FormValues) => {
+    try {
+      // Insert tool submission into the database
+      const { error } = await supabase
+        .from('tool_submissions')
+        .insert({
+          name: data.name,
+          description: data.description,
+          short_description: data.description.substring(0, 150) + (data.description.length > 150 ? '...' : ''),
+          category: data.category,
+          url: data.url,
+          image_url: data.imageUrl,
+          pricing_model: data.pricingModel,
+          tags: data.tags,
+          email: data.email
+        });
+
+      if (error) {
+        throw error;
+      }
+      
       onSubmitSuccess();
-    }, 1000);
+    } catch (error) {
+      console.error('Error submitting tool:', error);
+      // Handle error (could show a toast here)
+    }
   };
 
   return (
@@ -166,16 +196,15 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="chatbot">AI Chatbot</SelectItem>
-                        <SelectItem value="image-generation">Image Generation</SelectItem>
-                        <SelectItem value="text-generation">Text Generation</SelectItem>
-                        <SelectItem value="audio-generation">Audio Generation</SelectItem>
-                        <SelectItem value="video-generation">Video Generation</SelectItem>
-                        <SelectItem value="code-assistant">Code Assistant</SelectItem>
-                        <SelectItem value="research">Research Tool</SelectItem>
-                        <SelectItem value="data-analysis">Data Analysis</SelectItem>
-                        <SelectItem value="productivity">Productivity</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        {categoriesLoading ? (
+                          <SelectItem value="loading">Loading categories...</SelectItem>
+                        ) : (
+                          categories?.map((category, index) => (
+                            <SelectItem key={index} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormDescription>
@@ -232,6 +261,27 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
                   </FormControl>
                   <FormDescription>
                     URL to the tool's logo or a screenshot (optional)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Contact Email */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Email</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <Input placeholder="your.email@example.com" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Your email address (optional, for follow-up questions)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

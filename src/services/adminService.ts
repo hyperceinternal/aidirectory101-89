@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { AIProduct, UseCase } from "@/types/product";
 
@@ -69,7 +68,6 @@ export const fetchAllTools = async (): Promise<AIProduct[]> => {
 
 // Create a new tool
 export const createTool = async (tool: AIProduct): Promise<AIProduct> => {
-  // First, insert the tool
   const { data, error } = await supabase
     .from('ai_tools')
     .insert({
@@ -97,7 +95,6 @@ export const createTool = async (tool: AIProduct): Promise<AIProduct> => {
 
   const newToolId = data.id;
 
-  // Handle tags
   if (tool.tags && tool.tags.length > 0) {
     const tagInserts = tool.tags.map(tag => ({
       ai_tool_id: newToolId,
@@ -114,7 +111,6 @@ export const createTool = async (tool: AIProduct): Promise<AIProduct> => {
     }
   }
 
-  // Handle use cases
   if (tool.useCases && tool.useCases.length > 0) {
     const useCaseInserts = tool.useCases.map(useCase => ({
       ai_tool_id: newToolId,
@@ -140,7 +136,6 @@ export const createTool = async (tool: AIProduct): Promise<AIProduct> => {
 
 // Update an existing tool
 export const updateTool = async (tool: AIProduct): Promise<AIProduct> => {
-  // Update the tool
   const { error } = await supabase
     .from('ai_tools')
     .update({
@@ -165,7 +160,6 @@ export const updateTool = async (tool: AIProduct): Promise<AIProduct> => {
     throw error;
   }
 
-  // Delete existing tags and insert new ones
   const { error: deleteTagsError } = await supabase
     .from('ai_tool_tags')
     .delete()
@@ -192,7 +186,6 @@ export const updateTool = async (tool: AIProduct): Promise<AIProduct> => {
     }
   }
 
-  // Delete existing use cases and insert new ones
   const { error: deleteUseCasesError } = await supabase
     .from('ai_tool_use_cases')
     .delete()
@@ -225,7 +218,6 @@ export const updateTool = async (tool: AIProduct): Promise<AIProduct> => {
 
 // Delete a tool
 export const deleteTool = async (id: string): Promise<void> => {
-  // Delete associated tags first
   const { error: deleteTagsError } = await supabase
     .from('ai_tool_tags')
     .delete()
@@ -236,7 +228,6 @@ export const deleteTool = async (id: string): Promise<void> => {
     throw deleteTagsError;
   }
 
-  // Delete associated use cases
   const { error: deleteUseCasesError } = await supabase
     .from('ai_tool_use_cases')
     .delete()
@@ -247,7 +238,6 @@ export const deleteTool = async (id: string): Promise<void> => {
     throw deleteUseCasesError;
   }
 
-  // Delete the tool
   const { error } = await supabase
     .from('ai_tools')
     .delete()
@@ -262,18 +252,59 @@ export const deleteTool = async (id: string): Promise<void> => {
 // Fetch all categories for dropdown
 export const fetchCategories = async (): Promise<string[]> => {
   const { data, error } = await supabase
-    .from('ai_tools')
-    .select('category')
-    .order('category');
+    .from('categories')
+    .select('name')
+    .order('name');
 
   if (error) {
     console.error("Error fetching categories:", error);
     throw error;
   }
 
-  // Extract unique categories
-  const uniqueCategories = Array.from(new Set(data.map(item => item.category)));
-  return uniqueCategories;
+  const categories = data.map(item => item.name);
+  return categories;
+};
+
+// Create a new category
+export const createCategory = async (name: string): Promise<string> => {
+  const { data, error } = await supabase
+    .from('categories')
+    .insert({ name })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error creating category:", error);
+    throw error;
+  }
+
+  return data.name;
+};
+
+// Update a category
+export const updateCategory = async (oldName: string, newName: string): Promise<void> => {
+  const { error } = await supabase
+    .from('categories')
+    .update({ name: newName })
+    .eq('name', oldName);
+
+  if (error) {
+    console.error("Error updating category:", error);
+    throw error;
+  }
+};
+
+// Delete a category
+export const deleteCategory = async (name: string): Promise<void> => {
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .eq('name', name);
+
+  if (error) {
+    console.error("Error deleting category:", error);
+    throw error;
+  }
 };
 
 // Create a tag
@@ -342,4 +373,131 @@ const generateSlug = (name: string): string => {
     .replace(/[^\w\s-]/g, '')  // Remove special characters
     .replace(/\s+/g, '-')      // Replace spaces with hyphens
     .replace(/-+/g, '-');      // Replace multiple hyphens with single hyphen
+};
+
+// TOOL SUBMISSIONS
+
+// Fetch all tool submissions
+export const fetchToolSubmissions = async () => {
+  const { data, error } = await supabase
+    .from('tool_submissions')
+    .select('*')
+    .order('submitted_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching tool submissions:", error);
+    throw error;
+  }
+
+  return data;
+};
+
+// Update tool submission status
+export const updateToolSubmissionStatus = async (id: string, status: string): Promise<void> => {
+  const { error } = await supabase
+    .from('tool_submissions')
+    .update({ status })
+    .eq('id', id);
+
+  if (error) {
+    console.error("Error updating tool submission status:", error);
+    throw error;
+  }
+};
+
+// Delete tool submission
+export const deleteToolSubmission = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('tool_submissions')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error("Error deleting tool submission:", error);
+    throw error;
+  }
+};
+
+// Convert tool submission to AI product
+export const convertSubmissionToTool = async (submission: any): Promise<void> => {
+  const { data, error } = await supabase
+    .from('ai_tools')
+    .insert({
+      name: submission.name,
+      description: submission.description,
+      short_description: submission.short_description,
+      category: submission.category,
+      url: submission.url,
+      image_url: submission.image_url,
+      pricing_model: submission.pricing_model,
+      slug: generateSlug(submission.name)
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error converting submission to tool:", error);
+    throw error;
+  }
+
+  if (submission.tags && submission.tags.length > 0) {
+    const tagInserts = submission.tags.map((tag: string) => ({
+      ai_tool_id: data.id,
+      tag: tag
+    }));
+
+    const { error: tagError } = await supabase
+      .from('ai_tool_tags')
+      .insert(tagInserts);
+
+    if (tagError) {
+      console.error("Error adding tags:", tagError);
+      throw tagError;
+    }
+  }
+
+  await updateToolSubmissionStatus(submission.id, 'approved');
+};
+
+// CONTACT SUBMISSIONS
+
+// Fetch all contact submissions
+export const fetchContactSubmissions = async () => {
+  const { data, error } = await supabase
+    .from('contact_submissions')
+    .select('*')
+    .order('submitted_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching contact submissions:", error);
+    throw error;
+  }
+
+  return data;
+};
+
+// Update contact submission status
+export const updateContactStatus = async (id: string, status: string): Promise<void> => {
+  const { error } = await supabase
+    .from('contact_submissions')
+    .update({ status })
+    .eq('id', id);
+
+  if (error) {
+    console.error("Error updating contact status:", error);
+    throw error;
+  }
+};
+
+// Delete contact submission
+export const deleteContactSubmission = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('contact_submissions')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error("Error deleting contact submission:", error);
+    throw error;
+  }
 };
