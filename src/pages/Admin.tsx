@@ -14,7 +14,6 @@ const Admin: React.FC = () => {
   const navigate = useNavigate();
   
   // Simple password protection for admin access
-  // In a production environment, you should implement proper authentication
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -27,10 +26,13 @@ const Admin: React.FC = () => {
     }
   };
   
+  // Empty search handler to satisfy HeaderProps interface
+  const handleSearch = () => {};
+  
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col min-h-screen">
-        <Header />
+        <Header onSearch={handleSearch} />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
             <h1 className="text-2xl font-bold mb-6">Admin Login</h1>
@@ -65,7 +67,7 @@ const Admin: React.FC = () => {
   
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header onSearch={handleSearch} />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
@@ -98,3 +100,4 @@ const Admin: React.FC = () => {
 };
 
 export default Admin;
+
