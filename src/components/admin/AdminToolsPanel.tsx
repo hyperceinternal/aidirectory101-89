@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -22,7 +21,8 @@ import {
   DialogHeader, 
   DialogTitle,
   DialogFooter,
-  DialogTrigger
+  DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Plus, Trash2, X, Upload } from 'lucide-react';
+import { Pencil, Plus, Trash2, X, Upload, Database } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -47,6 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AdminToolsPanel = () => {
   const { toast } = useToast();
@@ -64,20 +65,20 @@ const AdminToolsPanel = () => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [logoPreview, setLogoPreview] = useState<string>('');
-  
-  // Fetch all tools
+  const [isSupabaseDialogOpen, setIsSupabaseDialogOpen] = useState(false);
+  const [supabaseUrl, setSupabaseUrl] = useState('');
+  const [supabaseKey, setSupabaseKey] = useState('');
+
   const { data: tools, isLoading } = useQuery({
     queryKey: ['admin', 'tools'],
     queryFn: fetchAllTools
   });
-  
-  // Fetch categories for dropdown
+
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ['admin', 'categories'],
     queryFn: fetchCategories
   });
-  
-  // Create tool mutation
+
   const createToolMutation = useMutation({
     mutationFn: createTool,
     onSuccess: () => {
@@ -97,8 +98,7 @@ const AdminToolsPanel = () => {
       });
     }
   });
-  
-  // Update tool mutation
+
   const updateToolMutation = useMutation({
     mutationFn: updateTool,
     onSuccess: () => {
@@ -118,8 +118,7 @@ const AdminToolsPanel = () => {
       });
     }
   });
-  
-  // Delete tool mutation
+
   const deleteToolMutation = useMutation({
     mutationFn: deleteTool,
     onSuccess: () => {
@@ -138,8 +137,7 @@ const AdminToolsPanel = () => {
       });
     }
   });
-  
-  // Reset form
+
   const resetForm = () => {
     setCurrentTool(null);
     setIsEditing(false);
@@ -153,8 +151,7 @@ const AdminToolsPanel = () => {
     setImagePreview('');
     setLogoPreview('');
   };
-  
-  // Edit tool
+
   const handleEditTool = (tool: AIProduct) => {
     setCurrentTool(tool);
     setTags(tool.tags || []);
@@ -164,8 +161,7 @@ const AdminToolsPanel = () => {
     setImagePreview(tool.image || '');
     setLogoPreview(tool.logoUrl || '');
   };
-  
-  // Add new tool
+
   const handleAddNewTool = () => {
     setCurrentTool({
       name: '',
@@ -187,8 +183,7 @@ const AdminToolsPanel = () => {
     setImagePreview('');
     setLogoPreview('');
   };
-  
-  // Handle image upload
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -196,8 +191,7 @@ const AdminToolsPanel = () => {
       setImagePreview(URL.createObjectURL(file));
     }
   };
-  
-  // Handle logo upload
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -205,8 +199,7 @@ const AdminToolsPanel = () => {
       setLogoPreview(URL.createObjectURL(file));
     }
   };
-  
-  // Handle form submit
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -219,7 +212,6 @@ const AdminToolsPanel = () => {
       return;
     }
     
-    // Set category based on selection
     if (isNewCategory && newCategory) {
       currentTool.category = newCategory;
     }
@@ -251,8 +243,7 @@ const AdminToolsPanel = () => {
       console.error('Error submitting form:', error);
     }
   };
-  
-  // Handle category change
+
   const handleCategoryChange = (value: string) => {
     if (value === "new") {
       setIsNewCategory(true);
@@ -262,34 +253,29 @@ const AdminToolsPanel = () => {
       setCurrentTool({...currentTool, category: value});
     }
   };
-  
-  // Handle tag input
+
   const handleAddTag = () => {
     if (newTag && !tags.includes(newTag)) {
       setTags([...tags, newTag]);
       setNewTag('');
     }
   };
-  
-  // Remove tag
+
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
-  
-  // Handle use case
+
   const handleAddUseCase = () => {
     if (newUseCase.title && newUseCase.description) {
       setUseCases([...useCases, newUseCase as UseCase]);
       setNewUseCase({ title: '', description: '' });
     }
   };
-  
-  // Remove use case
+
   const handleRemoveUseCase = (index: number) => {
     setUseCases(useCases.filter((_, i) => i !== index));
   };
-  
-  // Handle delete
+
   const handleDeleteTool = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this tool?')) {
       try {
@@ -299,14 +285,21 @@ const AdminToolsPanel = () => {
       }
     }
   };
-  
+
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>;
   }
-  
+
   return (
     <div>
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between mb-4">
+        <Button 
+          variant="outline" 
+          onClick={() => setIsSupabaseDialogOpen(true)}
+          className="flex items-center gap-2"
+        >
+          <Database className="h-4 w-4" /> Connect Supabase
+        </Button>
         <Button onClick={handleAddNewTool}>
           <Plus className="mr-1 h-4 w-4" /> Add New Tool
         </Button>
@@ -381,322 +374,506 @@ const AdminToolsPanel = () => {
       </Card>
       
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+          <DialogHeader className="px-6 pt-6">
             <DialogTitle>
               {isEditing ? 'Edit Tool' : 'Add New Tool'}
             </DialogTitle>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
-                <Input 
-                  id="name" 
-                  value={currentTool?.name || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, name: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
-                <Select 
-                  value={isNewCategory ? "new" : currentTool?.category || ''}
-                  onValueChange={handleCategoryChange}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {categoriesLoading ? (
-                        <SelectItem value="loading">Loading categories...</SelectItem>
-                      ) : (
-                        <>
-                          {categories && categories.map((category, index) => (
-                            <SelectItem key={index} value={category}>
-                              {category}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="new">+ Add new category</SelectItem>
-                        </>
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+          <ScrollArea className="h-[70vh] px-6">
+            <form onSubmit={handleSubmit} className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name *</Label>
+                  <Input 
+                    id="name" 
+                    value={currentTool?.name || ''} 
+                    onChange={(e) => setCurrentTool({...currentTool, name: e.target.value})}
+                    required
+                  />
+                </div>
                 
-                {isNewCategory && (
-                  <div className="mt-2">
-                    <Input 
-                      placeholder="Enter new category name"
-                      value={newCategory}
-                      onChange={(e) => setNewCategory(e.target.value)}
-                      required
-                    />
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category *</Label>
+                  <Select 
+                    value={isNewCategory ? "new" : currentTool?.category || ''}
+                    onValueChange={handleCategoryChange}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {categoriesLoading ? (
+                          <SelectItem value="loading">Loading categories...</SelectItem>
+                        ) : (
+                          <>
+                            {categories && categories.map((category, index) => (
+                              <SelectItem key={index} value={category}>
+                                {category}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="new">+ Add new category</SelectItem>
+                          </>
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  
+                  {isNewCategory && (
+                    <div className="mt-2">
+                      <Input 
+                        placeholder="Enter new category name"
+                        value={newCategory}
+                        onChange={(e) => setNewCategory(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="url">URL *</Label>
+                  <Input 
+                    id="url" 
+                    type="url"
+                    value={currentTool?.url || ''} 
+                    onChange={(e) => setCurrentTool({...currentTool, url: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug (URL friendly name) *</Label>
+                  <Input 
+                    id="slug" 
+                    value={currentTool?.slug || ''} 
+                    onChange={(e) => setCurrentTool({...currentTool, slug: e.target.value})}
+                    placeholder="e.g. tool-name"
+                    required
+                  />
+                  <p className="text-xs text-gray-500">This will be used in the URL: /tool/your-slug</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="rating">Rating (0-5)</Label>
+                  <Input 
+                    id="rating" 
+                    type="number"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={currentTool?.rating || 0} 
+                    onChange={(e) => setCurrentTool({...currentTool, rating: parseFloat(e.target.value)})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="pricingModel">Pricing Model</Label>
+                  <Input 
+                    id="pricingModel" 
+                    value={currentTool?.pricingModel || ''} 
+                    onChange={(e) => setCurrentTool({...currentTool, pricingModel: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="foundedYear">Founded Year</Label>
+                  <Input 
+                    id="foundedYear" 
+                    type="number"
+                    value={currentTool?.foundedYear || ''} 
+                    onChange={(e) => setCurrentTool({...currentTool, foundedYear: parseInt(e.target.value)})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="userCount">User Count</Label>
+                  <Input 
+                    id="userCount" 
+                    type="number"
+                    value={currentTool?.userCount || ''} 
+                    onChange={(e) => setCurrentTool({...currentTool, userCount: parseInt(e.target.value)})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="reviewCount">Review Count</Label>
+                  <Input 
+                    id="reviewCount" 
+                    type="number"
+                    value={currentTool?.reviewCount || ''} 
+                    onChange={(e) => setCurrentTool({...currentTool, reviewCount: parseInt(e.target.value)})}
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2 pt-8">
+                  <Checkbox 
+                    id="featured" 
+                    checked={currentTool?.featured || false}
+                    onCheckedChange={(checked: boolean) => 
+                      setCurrentTool({...currentTool, featured: checked})
+                    }
+                  />
+                  <Label htmlFor="featured">Featured Tool</Label>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="imageUpload">Tool Image *</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Label 
+                        htmlFor="imageUpload"
+                        className="border-2 border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                      >
+                        {imagePreview ? (
+                          <img 
+                            src={imagePreview} 
+                            alt="Image Preview" 
+                            className="max-h-24 object-contain mb-2" 
+                          />
+                        ) : (
+                          <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                        )}
+                        <span className="text-sm text-gray-500">
+                          {imagePreview ? "Change image" : "Upload image"}
+                        </span>
+                      </Label>
+                      <Input 
+                        id="imageUpload" 
+                        type="file"
+                        className="hidden"
+                        onChange={handleImageChange}
+                        accept="image/*"
+                      />
+                    </div>
                   </div>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="url">URL *</Label>
-                <Input 
-                  id="url" 
-                  type="url"
-                  value={currentTool?.url || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, url: e.target.value})}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="slug">Slug (URL friendly name) *</Label>
-                <Input 
-                  id="slug" 
-                  value={currentTool?.slug || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, slug: e.target.value})}
-                  placeholder="e.g. tool-name"
-                  required
-                />
-                <p className="text-xs text-gray-500">This will be used in the URL: /tool/your-slug</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="rating">Rating (0-5)</Label>
-                <Input 
-                  id="rating" 
-                  type="number"
-                  min="0"
-                  max="5"
-                  step="0.1"
-                  value={currentTool?.rating || 0} 
-                  onChange={(e) => setCurrentTool({...currentTool, rating: parseFloat(e.target.value)})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="pricingModel">Pricing Model</Label>
-                <Input 
-                  id="pricingModel" 
-                  value={currentTool?.pricingModel || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, pricingModel: e.target.value})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="foundedYear">Founded Year</Label>
-                <Input 
-                  id="foundedYear" 
-                  type="number"
-                  value={currentTool?.foundedYear || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, foundedYear: parseInt(e.target.value)})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="userCount">User Count</Label>
-                <Input 
-                  id="userCount" 
-                  type="number"
-                  value={currentTool?.userCount || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, userCount: parseInt(e.target.value)})}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="reviewCount">Review Count</Label>
-                <Input 
-                  id="reviewCount" 
-                  type="number"
-                  value={currentTool?.reviewCount || ''} 
-                  onChange={(e) => setCurrentTool({...currentTool, reviewCount: parseInt(e.target.value)})}
-                />
-              </div>
-              
-              <div className="flex items-center space-x-2 pt-8">
-                <Checkbox 
-                  id="featured" 
-                  checked={currentTool?.featured || false}
-                  onCheckedChange={(checked: boolean) => 
-                    setCurrentTool({...currentTool, featured: checked})
-                  }
-                />
-                <Label htmlFor="featured">Featured Tool</Label>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="imageUpload">Tool Image *</Label>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <Label 
-                      htmlFor="imageUpload"
-                      className="border-2 border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
-                    >
-                      {imagePreview ? (
-                        <img 
-                          src={imagePreview} 
-                          alt="Image Preview" 
-                          className="max-h-24 object-contain mb-2" 
-                        />
-                      ) : (
-                        <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                      )}
-                      <span className="text-sm text-gray-500">
-                        {imagePreview ? "Change image" : "Upload image"}
-                      </span>
-                    </Label>
-                    <Input 
-                      id="imageUpload" 
-                      type="file"
-                      className="hidden"
-                      onChange={handleImageChange}
-                      accept="image/*"
-                    />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="logoUpload">Tool Logo</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <Label 
+                        htmlFor="logoUpload"
+                        className="border-2 border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                      >
+                        {logoPreview ? (
+                          <img 
+                            src={logoPreview} 
+                            alt="Logo Preview" 
+                            className="max-h-24 object-contain mb-2" 
+                          />
+                        ) : (
+                          <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                        )}
+                        <span className="text-sm text-gray-500">
+                          {logoPreview ? "Change logo" : "Upload logo"}
+                        </span>
+                      </Label>
+                      <Input 
+                        id="logoUpload" 
+                        type="file"
+                        className="hidden"
+                        onChange={handleLogoChange}
+                        accept="image/*"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="logoUpload">Tool Logo</Label>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <Label 
-                      htmlFor="logoUpload"
-                      className="border-2 border-dashed border-gray-300 rounded-md p-4 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
-                    >
-                      {logoPreview ? (
-                        <img 
-                          src={logoPreview} 
-                          alt="Logo Preview" 
-                          className="max-h-24 object-contain mb-2" 
-                        />
-                      ) : (
-                        <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                      )}
-                      <span className="text-sm text-gray-500">
-                        {logoPreview ? "Change logo" : "Upload logo"}
-                      </span>
-                    </Label>
-                    <Input 
-                      id="logoUpload" 
-                      type="file"
-                      className="hidden"
-                      onChange={handleLogoChange}
-                      accept="image/*"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="shortDescription">Short Description</Label>
-              <Textarea 
-                id="shortDescription" 
-                value={currentTool?.shortDescription || ''} 
-                onChange={(e) => setCurrentTool({...currentTool, shortDescription: e.target.value})}
-                placeholder="Brief description (1-2 sentences)"
-                className="resize-none"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description">Full Description *</Label>
-              <Textarea 
-                id="description" 
-                value={currentTool?.description || ''} 
-                onChange={(e) => setCurrentTool({...currentTool, description: e.target.value})}
-                placeholder="Detailed description of the tool"
-                className="h-24 resize-none"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Tags</Label>
-              <div className="flex gap-2">
-                <Input 
-                  value={newTag} 
-                  onChange={(e) => setNewTag(e.target.value)}
-                  placeholder="Add a tag" 
-                  className="flex-1"
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleAddTag}
-                >
-                  Add
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {tags.map((tag, index) => (
-                  <Badge key={index} className="flex items-center gap-1">
-                    {tag}
-                    <X 
-                      className="h-3 w-3 cursor-pointer" 
-                      onClick={() => handleRemoveTag(tag)} 
-                    />
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Use Cases</Label>
-              <div className="space-y-2">
-                <Input 
-                  value={newUseCase.title} 
-                  onChange={(e) => setNewUseCase({...newUseCase, title: e.target.value})}
-                  placeholder="Use case title" 
-                />
+                <Label htmlFor="shortDescription">Short Description</Label>
                 <Textarea 
-                  value={newUseCase.description} 
-                  onChange={(e) => setNewUseCase({...newUseCase, description: e.target.value})}
-                  placeholder="Use case description"
+                  id="shortDescription" 
+                  value={currentTool?.shortDescription || ''} 
+                  onChange={(e) => setCurrentTool({...currentTool, shortDescription: e.target.value})}
+                  placeholder="Brief description (1-2 sentences)"
                   className="resize-none"
                 />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleAddUseCase}
-                  className="w-full"
-                >
-                  Add Use Case
-                </Button>
               </div>
-              <div className="space-y-2 mt-2">
-                {useCases.map((useCase, index) => (
-                  <div key={index} className="bg-gray-50 p-3 rounded-md relative">
-                    <h4 className="font-medium">{useCase.title}</h4>
-                    <p className="text-sm text-gray-600">{useCase.description}</p>
-                    <Button 
-                      type="button"
-                      variant="ghost" 
-                      size="sm"
-                      className="absolute top-2 right-2 h-6 w-6 p-0"
-                      onClick={() => handleRemoveUseCase(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">Full Description *</Label>
+                <Textarea 
+                  id="description" 
+                  value={currentTool?.description || ''} 
+                  onChange={(e) => setCurrentTool({...currentTool, description: e.target.value})}
+                  placeholder="Detailed description of the tool"
+                  className="h-24 resize-none"
+                  required
+                />
               </div>
+              
+              <div className="space-y-2">
+                <Label>Tags</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={newTag} 
+                    onChange={(e) => setNewTag(e.target.value)}
+                    placeholder="Add a tag" 
+                    className="flex-1"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleAddTag}
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tags.map((tag, index) => (
+                    <Badge key={index} className="flex items-center gap-1">
+                      {tag}
+                      <X 
+                        className="h-3 w-3 cursor-pointer" 
+                        onClick={() => handleRemoveTag(tag)} 
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Use Cases</Label>
+                <div className="space-y-2">
+                  <Input 
+                    value={newUseCase.title} 
+                    onChange={(e) => setNewUseCase({...newUseCase, title: e.target.value})}
+                    placeholder="Use case title" 
+                  />
+                  <Textarea 
+                    value={newUseCase.description} 
+                    onChange={(e) => setNewUseCase({...newUseCase, description: e.target.value})}
+                    placeholder="Use case description"
+                    className="resize-none"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleAddUseCase}
+                    className="w-full"
+                  >
+                    Add Use Case
+                  </Button>
+                </div>
+                <div className="space-y-2 mt-2">
+                  {useCases.map((useCase, index) => (
+                    <div key={index} className="bg-gray-50 p-3 rounded-md relative">
+                      <h4 className="font-medium">{useCase.title}</h4>
+                      <p className="text-sm text-gray-600">{useCase.description}</p>
+                      <Button 
+                        type="button"
+                        variant="ghost" 
+                        size="sm"
+                        className="absolute top-2 right-2 h-6 w-6 p-0"
+                        onClick={() => handleRemoveUseCase(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </form>
+          </ScrollArea>
+          
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button type="button" variant="outline" onClick={resetForm}>
+              Cancel
+            </Button>
+            <Button type="submit" onClick={handleSubmit}>
+              {isEditing ? 'Update Tool' : 'Add Tool'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isSupabaseDialogOpen} onOpenChange={setIsSupabaseDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Connect to Supabase</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="supabaseUrl">Supabase Project URL</Label>
+              <Input 
+                id="supabaseUrl" 
+                value={supabaseUrl} 
+                onChange={(e) => setSupabaseUrl(e.target.value)}
+                placeholder="https://your-project-id.supabase.co"
+              />
             </div>
             
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={resetForm}>
-                Cancel
+            <div className="space-y-2">
+              <Label htmlFor="supabaseKey">Supabase Anon Key</Label>
+              <Input 
+                id="supabaseKey" 
+                value={supabaseKey} 
+                onChange={(e) => setSupabaseKey(e.target.value)}
+                placeholder="your-anon-key"
+                type="password"
+              />
+            </div>
+            
+            <div className="bg-gray-50 p-4 rounded-md">
+              <h4 className="font-medium mb-2">SQL Schema for Your New Database</h4>
+              <ScrollArea className="h-40">
+                <pre className="text-xs overflow-x-auto bg-gray-100 p-2 rounded">
+{`-- Create AI Tools table
+CREATE TABLE ai_tools (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  short_description TEXT,
+  category TEXT NOT NULL,
+  url TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  logo_url TEXT,
+  pricing_model TEXT NOT NULL,
+  rating NUMERIC DEFAULT 0,
+  featured BOOLEAN DEFAULT false,
+  founded_year INTEGER,
+  user_count INTEGER,
+  review_count INTEGER DEFAULT 0,
+  slug TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Create AI Tool Tags table
+CREATE TABLE ai_tool_tags (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ai_tool_id UUID NOT NULL,
+  tag TEXT NOT NULL
+);
+
+-- Create AI Tool Use Cases table
+CREATE TABLE ai_tool_use_cases (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ai_tool_id UUID NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL
+);
+
+-- Create Categories table
+CREATE TABLE categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Create Tool Submissions table
+CREATE TABLE tool_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  short_description TEXT,
+  category TEXT NOT NULL,
+  url TEXT NOT NULL,
+  image_url TEXT,
+  pricing_model TEXT NOT NULL,
+  tags TEXT[],
+  email TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Create Contact Submissions table
+CREATE TABLE contact_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'unread',
+  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Create Newsletter Subscribers table
+CREATE TABLE newsletter_subscribers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Create Storage bucket for images
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('tool_images', 'tool_images', true);
+
+-- Create policies for storage bucket
+CREATE POLICY "Public Access" 
+ON storage.objects 
+FOR SELECT 
+USING (bucket_id = 'tool_images');
+
+CREATE POLICY "Authenticated users can upload" 
+ON storage.objects 
+FOR INSERT 
+TO authenticated
+WITH CHECK (bucket_id = 'tool_images');
+
+CREATE POLICY "Users can update own objects" 
+ON storage.objects 
+FOR UPDATE 
+TO authenticated
+USING (bucket_id = 'tool_images' AND auth.uid() = owner);
+
+CREATE POLICY "Users can delete own objects" 
+ON storage.objects 
+FOR DELETE 
+TO authenticated
+USING (bucket_id = 'tool_images' AND auth.uid() = owner);`}
+                </pre>
+              </ScrollArea>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-2 w-full"
+                onClick={() => {
+                  navigator.clipboard.writeText(document.querySelector('pre')?.textContent || '');
+                  toast({
+                    title: "SQL copied to clipboard",
+                    description: "You can now paste this SQL into your Supabase SQL Editor",
+                  });
+                }}
+              >
+                Copy SQL to Clipboard
               </Button>
-              <Button type="submit">
-                {isEditing ? 'Update Tool' : 'Add Tool'}
-              </Button>
-            </DialogFooter>
-          </form>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button
+              onClick={() => {
+                if (supabaseUrl && supabaseKey) {
+                  toast({
+                    title: "Supabase connection updated",
+                    description: "You've successfully connected to a new Supabase project",
+                  });
+                  setIsSupabaseDialogOpen(false);
+                } else {
+                  toast({
+                    title: "Missing information",
+                    description: "Please provide both the URL and API key",
+                    variant: "destructive"
+                  });
+                }
+              }}
+            >
+              Connect
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -65,6 +65,11 @@ export interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
+export interface SupabaseConfig {
+  url: string;
+  key: string;
+}
+
 export const ToolSchema = z.object({
   name: z.string().min(2, "Tool name must be at least 2 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
