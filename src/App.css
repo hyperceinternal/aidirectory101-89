@@ -6,6 +6,12 @@
   text-align: center;
 }
 
+/* Add more top padding to prevent content from being hidden behind header */
+.page-content {
+  padding-top: 120px; /* Increase this value to add more space */
+}
+
+/* Existing styles remain the same */
 .logo {
   height: 6em;
   padding: 1.5em;

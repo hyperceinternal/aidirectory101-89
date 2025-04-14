@@ -66,9 +66,9 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Header onSearch={handleSearch} />
       
-      <main className="flex-grow pt-24 px-4 container mx-auto">
+      <main className="flex-grow page-content px-4 container mx-auto">
         <section className="mb-12">
-          <div className="text-center mb-16 mt-8 md:mt-0">
+          <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-ai-dark">
               Discover the Best <span className="text-ai-purple">AI Products</span>
             </h1>

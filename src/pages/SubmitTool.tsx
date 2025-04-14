@@ -22,7 +22,6 @@ const SubmitTool = () => {
       description: "Thank you for your submission. Our team will review it shortly.",
     });
     
-    // Navigate to home page after submission
     setTimeout(() => {
       navigate('/');
     }, 2000);
@@ -31,7 +30,7 @@ const SubmitTool = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header onSearch={handleSearch} />
-      <main className="flex-grow pt-24 pb-16">
+      <main className="flex-grow page-content pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8">

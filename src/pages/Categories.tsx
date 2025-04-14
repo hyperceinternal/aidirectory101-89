@@ -41,7 +41,7 @@ const Categories = () => {
     <div className="min-h-screen flex flex-col">
       <Header onSearch={handleSearch} />
       
-      <main className="flex-grow pt-24 px-4 container mx-auto mb-16">
+      <main className="flex-grow page-content px-4 container mx-auto mb-16">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4 text-ai-dark">Categories</h1>
           <p className="text-gray-600">Browse AI tools by category to find exactly what you need.</p>
