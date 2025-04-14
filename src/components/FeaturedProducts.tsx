@@ -202,7 +202,7 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ products, isLoading
                 </div>
                 <div className="px-4 py-2 text-center">
                   <p className="text-sm text-gray-500">Pricing</p>
-                  <p className="font-bold text-xl">{activeTool.pricingModel}</p>
+                  <p className="font-bold text-xl capitalize">{activeTool.pricingModel}</p>
                 </div>
               </div>
             </Card>

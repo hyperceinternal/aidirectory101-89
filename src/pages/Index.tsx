@@ -9,11 +9,13 @@ import ProductGrid from '@/components/ProductGrid';
 import ProductCTA from '@/components/ProductCTA';
 import Footer from '@/components/Footer';
 import { fetchAllTools, fetchFeaturedTools, getCategories, filterProducts } from '@/services/aiToolsService';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const isMobile = useIsMobile();
   
   // Fetch all products
   const { data: allProducts = [], isLoading: isLoadingAll } = useQuery({
@@ -66,7 +68,7 @@ const Index = () => {
       
       <main className="flex-grow pt-24 px-4 container mx-auto">
         <section className="mb-12">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 mt-8 md:mt-0">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-ai-dark">
               Discover the Best <span className="text-ai-purple">AI Products</span>
             </h1>

@@ -49,6 +49,7 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Fetch categories from the database
   const { data: categories, isLoading: categoriesLoading } = useQuery({
@@ -70,12 +71,19 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
     },
   });
 
-  // Handle image upload
+  // Handle image upload - fixed to trigger file dialog
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Function to trigger file input click
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -204,10 +212,13 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
               />
             </div>
 
-            {/* Tool Image */}
+            {/* Tool Image - Fixed to be clickable */}
             <div className="space-y-2">
               <FormLabel htmlFor="imageUpload">Tool Image</FormLabel>
-              <div className="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
+              <div 
+                className="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                onClick={triggerFileInput}
+              >
                 {imagePreview ? (
                   <div className="text-center">
                     <img 
@@ -230,6 +241,7 @@ const SubmitToolForm: React.FC<SubmitToolFormProps> = ({ onSubmitSuccess }) => {
                   className="hidden" 
                   accept="image/*"
                   onChange={handleImageChange}
+                  ref={fileInputRef}
                 />
               </div>
             </div>

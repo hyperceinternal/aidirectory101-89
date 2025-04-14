@@ -9,12 +9,14 @@ import AdminToolSubmissionsPanel from '@/components/admin/AdminToolSubmissionsPa
 import AdminContactSubmissionsPanel from '@/components/admin/AdminContactSubmissionsPanel';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Simple password protection for admin access
   const handleLogin = (e: React.FormEvent) => {
@@ -76,7 +78,7 @@ const Admin: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <Header onSearch={handleSearch} />
       <main className="flex-grow container mx-auto px-4 py-8 mb-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 mt-8 md:mt-0">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <button 
             onClick={() => setIsAuthenticated(false)}
@@ -87,7 +89,7 @@ const Admin: React.FC = () => {
         </div>
         
         <Tabs defaultValue="tools" className="w-full">
-          <TabsList className="mb-6">
+          <TabsList className={`mb-6 ${isMobile ? 'flex-wrap' : ''}`}>
             <TabsTrigger value="tools">AI Tools</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
             <TabsTrigger value="submissions">Tool Submissions</TabsTrigger>
@@ -95,27 +97,28 @@ const Admin: React.FC = () => {
             <TabsTrigger value="subscribers">Newsletter Subscribers</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="tools">
+          <TabsContent value="tools" className="pb-8">
             <AdminToolsPanel />
           </TabsContent>
           
-          <TabsContent value="categories">
+          <TabsContent value="categories" className="pb-8">
             <AdminCategoriesPanel />
           </TabsContent>
           
-          <TabsContent value="submissions">
+          <TabsContent value="submissions" className="pb-8">
             <AdminToolSubmissionsPanel />
           </TabsContent>
           
-          <TabsContent value="contacts">
+          <TabsContent value="contacts" className="pb-8">
             <AdminContactSubmissionsPanel />
           </TabsContent>
           
-          <TabsContent value="subscribers">
+          <TabsContent value="subscribers" className="pb-8">
             <AdminSubscribersPanel />
           </TabsContent>
         </Tabs>
       </main>
+      <div className="footer-spacer"></div>
       <Footer />
     </div>
   );

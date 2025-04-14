@@ -36,6 +36,7 @@ export interface ToolSubmission {
   category: string;
   url: string;
   image_url?: string;
+  logo_url?: string;
   pricing_model: string;
   tags?: string[];
   email?: string;
@@ -76,7 +77,7 @@ export const ToolSchema = z.object({
   shortDescription: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   url: z.string().url("Must be a valid URL"),
-  image: z.string().url("Must be a valid image URL"),
+  image: z.string().url("Must be a valid image URL").optional(),
   logoUrl: z.string().url("Must be a valid logo URL").optional(),
   tags: z.array(z.string()),
   rating: z.number().min(0).max(5),
@@ -91,5 +92,22 @@ export const ToolSchema = z.object({
       title: z.string(),
       description: z.string()
     })
-  ).optional()
+  ).optional(),
+  imageFile: z.instanceof(File).optional(),
+  logoFile: z.instanceof(File).optional()
+});
+
+export const AdminToolSchema = z.object({
+  name: z.string().min(2, "Tool name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  shortDescription: z.string().optional(),
+  category: z.string().min(1, "Category is required"),
+  url: z.string().url("Must be a valid URL"),
+  tags: z.array(z.string()),
+  rating: z.number().min(0).max(5),
+  featured: z.boolean(),
+  pricingModel: z.string(),
+  slug: z.string().optional(),
+  imageFile: z.instanceof(File).optional().nullable(),
+  logoFile: z.instanceof(File).optional().nullable()
 });
