@@ -33,12 +33,29 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
     <header className="w-full bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-row items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="text-2xl font-bold text-ai-dark">
               <span className="text-ai-purple">AI</span>Directory
             </Link>
           </div>
 
+          {/* Search Bar - Now positioned in the middle for desktop */}
+          {!isMobile && (
+            <div className="relative w-1/3 mx-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Input 
+                type="text" 
+                placeholder="Search AI products..." 
+                className="pl-10 w-full"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchSubmit}
+              />
+            </div>
+          )}
+
+          {/* Navigation and Menu Toggle */}
           {isMobile ? (
             <Button 
               variant="ghost" 
@@ -72,18 +89,22 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
           )}
         </div>
 
-        <div className="w-full mt-4 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <Input 
-            type="text" 
-            placeholder="Search AI products..." 
-            className="pl-10 w-full"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            onKeyDown={handleSearchSubmit}
-          />
-        </div>
+        {/* Mobile search bar - shown below the header */}
+        {isMobile && (
+          <div className="w-full mt-4 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Input 
+              type="text" 
+              placeholder="Search AI products..." 
+              className="pl-10 w-full"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchSubmit}
+            />
+          </div>
+        )}
 
+        {/* Mobile menu - shown when menu is toggled */}
         {isMobile && isMenuOpen && (
           <div className="md:hidden mt-4 bg-white border-t border-gray-100 py-2">
             <nav className="flex flex-col space-y-3 pt-2">
