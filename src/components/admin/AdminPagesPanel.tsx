@@ -22,15 +22,24 @@ const AdminPagesPanel = () => {
   const [selectedPage, setSelectedPage] = React.useState<string | null>(null);
   const [editableContent, setEditableContent] = React.useState<Record<string, string>>({});
 
-  const { data: pages, isLoading } = useQuery({
+  // Debugging log to see if component is rendering
+  console.log('AdminPagesPanel rendering');
+
+  const { data: pages, isLoading, error } = useQuery({
     queryKey: ['page-contents'],
     queryFn: async () => {
+      console.log('Fetching pages from Supabase');
       const { data, error } = await supabase
         .from('page_contents')
         .select('*')
         .order('page_name');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching pages:', error);
+        throw error;
+      }
+      
+      console.log('Pages fetched:', data);
       return data as PageContent[];
     }
   });
@@ -62,8 +71,14 @@ const AdminPagesPanel = () => {
   });
 
   const handlePageSelect = (page: PageContent) => {
+    // Convert JSONB content to Record<string, string>
+    const stringContent: Record<string, string> = {};
+    Object.entries(page.content).forEach(([key, value]) => {
+      stringContent[key] = String(value);
+    });
+    
     setSelectedPage(page.id);
-    setEditableContent(page.content);
+    setEditableContent(stringContent);
   };
 
   const handleContentChange = (key: string, value: string) => {
@@ -85,22 +100,32 @@ const AdminPagesPanel = () => {
     return <div>Loading...</div>;
   }
 
+  if (error) {
+    return <div>Error loading pages: {(error as Error).message}</div>;
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card className="p-4">
         <h3 className="font-semibold mb-4">Pages</h3>
         <ScrollArea className="h-[600px]">
           <div className="space-y-2">
-            {pages?.map((page) => (
-              <Button
-                key={page.id}
-                variant={selectedPage === page.id ? "default" : "outline"}
-                className="w-full justify-start"
-                onClick={() => handlePageSelect(page)}
-              >
-                {page.page_name.charAt(0).toUpperCase() + page.page_name.slice(1)}
-              </Button>
-            ))}
+            {pages && pages.length > 0 ? (
+              pages.map((page) => (
+                <Button
+                  key={page.id}
+                  variant={selectedPage === page.id ? "default" : "outline"}
+                  className="w-full justify-start"
+                  onClick={() => handlePageSelect(page)}
+                >
+                  {page.page_name.charAt(0).toUpperCase() + page.page_name.slice(1)}
+                </Button>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground p-4">
+                No pages found
+              </div>
+            )}
           </div>
         </ScrollArea>
       </Card>
@@ -114,7 +139,7 @@ const AdminPagesPanel = () => {
                 <label className="text-sm font-medium">
                   {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                 </label>
-                {value.length > 100 ? (
+                {typeof value === 'string' && value.length > 100 ? (
                   <Textarea
                     value={value}
                     onChange={(e) => handleContentChange(key, e.target.value)}
@@ -122,7 +147,7 @@ const AdminPagesPanel = () => {
                   />
                 ) : (
                   <Input
-                    value={value}
+                    value={String(value)}
                     onChange={(e) => handleContentChange(key, e.target.value)}
                   />
                 )}
