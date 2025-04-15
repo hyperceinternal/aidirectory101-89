@@ -31,6 +31,7 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
               name="password"
               placeholder="Enter admin password"
               className="w-full"
+              autoComplete="current-password"
             />
           </div>
           <Button type="submit" className="w-full">

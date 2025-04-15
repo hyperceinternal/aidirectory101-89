@@ -45,7 +45,7 @@ const Admin: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <AdminLayout 
-        isAuthenticated={false}
+        isAuthenticated={isAuthenticated}
         setIsAuthenticated={setIsAuthenticated}
         onSearch={handleSearch}
       >
