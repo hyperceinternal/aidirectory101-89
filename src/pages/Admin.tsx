@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +6,7 @@ import AdminSubscribersPanel from '@/components/admin/AdminSubscribersPanel';
 import AdminCategoriesPanel from '@/components/admin/AdminCategoriesPanel';
 import AdminToolSubmissionsPanel from '@/components/admin/AdminToolSubmissionsPanel';
 import AdminContactSubmissionsPanel from '@/components/admin/AdminContactSubmissionsPanel';
+import AdminPagesPanel from '@/components/admin/AdminPagesPanel';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -18,11 +18,9 @@ const Admin: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
-  // Simple password protection for admin access
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple admin password - in a real app, use proper authentication
     if (password === 'admin123') {
       setIsAuthenticated(true);
       setError('');
@@ -31,7 +29,6 @@ const Admin: React.FC = () => {
     }
   };
   
-  // Handle search
   const handleSearch = (term: string) => {
     if (term) {
       navigate(`/search?q=${encodeURIComponent(term)}`);
@@ -95,6 +92,7 @@ const Admin: React.FC = () => {
             <TabsTrigger value="submissions">Tool Submissions</TabsTrigger>
             <TabsTrigger value="contacts">Contact Messages</TabsTrigger>
             <TabsTrigger value="subscribers">Newsletter Subscribers</TabsTrigger>
+            <TabsTrigger value="pages">Pages</TabsTrigger>
           </TabsList>
           
           <TabsContent value="tools" className="pb-8">
@@ -115,6 +113,10 @@ const Admin: React.FC = () => {
           
           <TabsContent value="subscribers" className="pb-8">
             <AdminSubscribersPanel />
+          </TabsContent>
+          
+          <TabsContent value="pages" className="pb-8">
+            <AdminPagesPanel />
           </TabsContent>
         </Tabs>
       </main>
