@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 type PageContent = {
   id: string;
   page_name: string;
-  content: Record<string, string>;
+  content: Record<string, any>;
   updated_at: string;
 };
 
@@ -22,7 +22,6 @@ const AdminPagesPanel = () => {
   const [selectedPage, setSelectedPage] = React.useState<string | null>(null);
   const [editableContent, setEditableContent] = React.useState<Record<string, string>>({});
 
-  // Debugging log to see if component is rendering
   console.log('AdminPagesPanel rendering');
 
   const { data: pages, isLoading, error } = useQuery({
@@ -45,13 +44,33 @@ const AdminPagesPanel = () => {
   });
 
   const updatePageMutation = useMutation({
-    mutationFn: async ({ pageId, content }: { pageId: string; content: Record<string, string> }) => {
+    mutationFn: async ({ pageId, content }: { pageId: string; content: Record<string, any> }) => {
+      // Convert string values back to their appropriate types if needed
+      const processedContent: Record<string, any> = {};
+      
+      Object.entries(content).forEach(([key, value]) => {
+        // Try to convert numerical strings to numbers
+        if (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '') {
+          const num = Number(value);
+          if (Number.isInteger(num)) {
+            processedContent[key] = num;
+          } else {
+            processedContent[key] = value;
+          }
+        } else {
+          processedContent[key] = value;
+        }
+      });
+      
       const { error } = await supabase
         .from('page_contents')
-        .update({ content })
+        .update({ content: processedContent })
         .eq('id', pageId);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating page:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['page-contents'] });
@@ -71,11 +90,17 @@ const AdminPagesPanel = () => {
   });
 
   const handlePageSelect = (page: PageContent) => {
+    console.log('Selected page:', page);
     // Convert JSONB content to Record<string, string>
     const stringContent: Record<string, string> = {};
-    Object.entries(page.content).forEach(([key, value]) => {
-      stringContent[key] = String(value);
-    });
+    
+    if (page.content) {
+      Object.entries(page.content).forEach(([key, value]) => {
+        stringContent[key] = String(value);
+      });
+    } else {
+      console.warn('Page has no content or content is null');
+    }
     
     setSelectedPage(page.id);
     setEditableContent(stringContent);
@@ -90,6 +115,8 @@ const AdminPagesPanel = () => {
 
   const handleSave = () => {
     if (!selectedPage) return;
+    
+    console.log('Saving content:', editableContent);
     updatePageMutation.mutate({
       pageId: selectedPage,
       content: editableContent
@@ -123,7 +150,7 @@ const AdminPagesPanel = () => {
               ))
             ) : (
               <div className="text-center text-muted-foreground p-4">
-                No pages found
+                No pages found. Please run the SQL to create sample pages.
               </div>
             )}
           </div>
