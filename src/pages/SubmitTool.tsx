@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -30,20 +29,22 @@ const SubmitTool = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header onSearch={handleSearch} />
-      <main className="flex-grow page-content pb-16">
-        <div className="container mx-auto px-4">
+      
+      <main className="flex-grow page-content container mx-auto px-4">
+        <section className="mb-12 pt-32">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-ai-dark">Submit an AI Tool</h1>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Share an innovative AI tool with our community. Please provide detailed information to help users understand the tool's capabilities.
+            </p>
+          </div>
+          
           <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit an AI Tool</h1>
-              <p className="text-gray-600">
-                Share an innovative AI tool with our community. Please provide detailed information to help users understand the tool's capabilities.
-              </p>
-            </div>
-            
             <SubmitToolForm onSubmitSuccess={handleSubmitSuccess} />
           </div>
-        </div>
+        </section>
       </main>
+      
       <Footer />
     </div>
   );

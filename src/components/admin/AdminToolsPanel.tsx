@@ -48,6 +48,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { updateSupabaseCredentials } from "@/integrations/supabase/client";
 
 const AdminToolsPanel = () => {
   const { toast } = useToast();
@@ -857,11 +858,22 @@ USING (bucket_id = 'tool_images' AND auth.uid() = owner);`}
             <Button
               onClick={() => {
                 if (supabaseUrl && supabaseKey) {
-                  toast({
-                    title: "Supabase connection updated",
-                    description: "You've successfully connected to a new Supabase project",
-                  });
-                  setIsSupabaseDialogOpen(false);
+                  try {
+                    updateSupabaseCredentials(supabaseUrl, supabaseKey);
+                    // Invalidate all queries to force refetch with new client
+                    queryClient.invalidateQueries();
+                    toast({
+                      title: "Supabase connection updated",
+                      description: "Successfully connected to the new Supabase project. Data will now be fetched from the new database.",
+                    });
+                    setIsSupabaseDialogOpen(false);
+                  } catch (error) {
+                    toast({
+                      title: "Connection failed",
+                      description: "Failed to connect to Supabase. Please check your credentials.",
+                      variant: "destructive"
+                    });
+                  }
                 } else {
                   toast({
                     title: "Missing information",

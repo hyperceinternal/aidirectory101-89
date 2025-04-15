@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -66,13 +65,13 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Header onSearch={handleSearch} />
       
-      <main className="flex-grow page-content px-4 container mx-auto">
-        <section className="mb-12">
+      <main className="flex-grow page-content container mx-auto px-4">
+        <section className="mb-12 pt-32">
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-ai-dark">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-ai-dark">
               Discover the Best <span className="text-ai-purple">AI Products</span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Explore our comprehensive directory of AI tools, services, and solutions to find the perfect match for your needs.
             </p>
           </div>

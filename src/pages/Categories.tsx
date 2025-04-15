@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, Grid, Rows3 } from 'lucide-react';
@@ -41,39 +40,43 @@ const Categories = () => {
     <div className="min-h-screen flex flex-col">
       <Header onSearch={handleSearch} />
       
-      <main className="flex-grow page-content px-4 container mx-auto mb-16">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4 text-ai-dark">Categories</h1>
-          <p className="text-gray-600">Browse AI tools by category to find exactly what you need.</p>
-        </div>
-        
-        <div className="flex justify-between items-center mb-6">
-          <div className="text-sm text-gray-500">
-            {selectedCategory 
-              ? `Showing ${filteredProducts.length} tools in "${selectedCategory}"`
-              : `${categories.length} categories available`}
+      <main className="flex-grow page-content container mx-auto px-4 pb-16">
+        <section className="mb-12 pt-32">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-ai-dark">Categories</h1>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Browse AI tools by category to find exactly what you need.
+            </p>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <button 
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
-              aria-label="Grid view"
-            >
-              <Grid size={18} />
-            </button>
-            <button 
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
-              aria-label="List view"
-            >
-              <Rows3 size={18} />
-            </button>
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-sm text-gray-500">
+              {selectedCategory 
+                ? `Showing ${filteredProducts.length} tools in "${selectedCategory}"`
+                : `${categories.length} categories available`}
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                aria-label="Grid view"
+              >
+                <Grid size={18} />
+              </button>
+              <button 
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                aria-label="List view"
+              >
+                <Rows3 size={18} />
+              </button>
+            </div>
           </div>
-        </div>
+        </section>
 
         {!selectedCategory ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             {categoriesLoading ? (
               // Loading state for categories
               Array(8).fill(0).map((_, index) => (

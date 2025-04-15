@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Info, Users, Award, Globe, Heart, Lightbulb } from 'lucide-react';
 import Header from '@/components/Header';
@@ -82,56 +81,6 @@ const AboutUs = () => {
                     We provide resources to help everyone understand and leverage AI technology, regardless of technical expertise.
                   </p>
                 </div>
-              </div>
-            </div>
-          </section>
-          
-          {/* Team Section */}
-          <section className="mb-16">
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <div className="flex items-center mb-8">
-                <Users className="h-8 w-8 text-ai-purple mr-3" />
-                <h2 className="text-2xl font-semibold">Our Team</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {[
-                  {
-                    name: "Alex Johnson",
-                    role: "Founder & CEO",
-                    bio: "Former AI researcher with a passion for making technology accessible to everyone.",
-                    imgSrc: "https://randomuser.me/api/portraits/men/32.jpg"
-                  },
-                  {
-                    name: "Sarah Chen",
-                    role: "Head of Content",
-                    bio: "Tech journalist with 10+ years experience covering emerging technologies.",
-                    imgSrc: "https://randomuser.me/api/portraits/women/44.jpg"
-                  },
-                  {
-                    name: "Marcus Williams",
-                    role: "Technical Director",
-                    bio: "AI engineer who specializes in evaluating machine learning models and applications.",
-                    imgSrc: "https://randomuser.me/api/portraits/men/68.jpg"
-                  },
-                  {
-                    name: "Priya Patel",
-                    role: "Community Manager",
-                    bio: "Dedicated to building bridges between AI developers and users.",
-                    imgSrc: "https://randomuser.me/api/portraits/women/65.jpg"
-                  }
-                ].map((member, index) => (
-                  <div key={index} className="flex flex-col items-center text-center">
-                    <img
-                      src={member.imgSrc}
-                      alt={member.name}
-                      className="w-32 h-32 rounded-full object-cover mb-4"
-                    />
-                    <h3 className="text-lg font-semibold">{member.name}</h3>
-                    <p className="text-ai-purple font-medium mb-2">{member.role}</p>
-                    <p className="text-gray-600 text-sm">{member.bio}</p>
-                  </div>
-                ))}
               </div>
             </div>
           </section>
